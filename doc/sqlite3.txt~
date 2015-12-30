@@ -1,0 +1,20 @@
+gccrec のデータベース
+
+~/.gccrec
+.schema gccrec
+
+CREATE TABLE gccrec (file text primary key on conflict replace, driver text, args text, workdir text);
+
+同じにする。
+
+~/.cmdrec
+.schema cmdrec
+
+CREATE TABLE cmdrec (file text primary key on conflict replace, cmd text, args text, cwd text, function text, pid text, ppid text);
+
+SQLiteで“おこづかいちょう”
+http://codezine.jp/article/detail/2414
+
+
+
+

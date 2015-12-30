@@ -1,0 +1,11 @@
+_vfork
+_fork
+_execv
+_execve
+_execvp
+_execvP
+_execl
+_execlp
+_execle
+_posix_spawn
+_posix_spawnp

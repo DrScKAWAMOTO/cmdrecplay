@@ -1,0 +1,10 @@
+cmdrec のデータベース
+
+~/.cmdrec.db
+.schema cmdrec
+
+CREATE TABLE cmdrec (file text primary key on conflict replace, cmd text, cwd text, args text, function text, pid text, ppid text);
+
+
+
+
