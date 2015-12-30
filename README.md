@@ -2,17 +2,25 @@ cmdrecplay
 ==============
 
 'Cmdrecplay' is a tool for a C/C++ checker of emacs flycheck.
-This tool consist of 'cmdrec' and `cmdplay`.
-`cmdrec` examines makefile of your projects, then records compiler options for make
-process, such that -D, -I, -W, -f, -std, etc., to a sqlite3 database ``~/.cmdrec.db''.
-`cmdplay` works a part of C/C++ checker of emacs flycheck, then refers this database,
+
+This tool consist of 'cmdrec' and 'cmdplay'.
+
+'cmdrec' examines makefile of your projects, then records compiler options for make
+process, such that -D, -I, -W, -f, -std, etc., to a sqlite3 database '~/.cmdrec.db'.
+
+'cmdplay' works a part of C/C++ checker of emacs flycheck, then refers this database,
 and invoke compiler such as clang with correct options.
-Sqlite3 database ``~/.cmdrec.db'' remembers histories of compiling, so, if you remove
+
+Sqlite3 database '~/.cmdrec.db' remembers histories of compiling, so, if you remove
 this database file, then informations on the correct option will disappear.
 
-Thanks, ``cmdrecplay'' uses bear protocol written by Lè´°szlè´— Nagy.
+
+Thanks, 'cmdrecplay' uses bear protocol written by Lè´°szlè´— Nagy.
+
 Bear's concept is a approach system call hacking by LD_PRELOAD.
+
 Bear uses the JSON compilation database.
+
 For more detail, see https://github.com/rizsotto/Bear .
 
 How to build
