@@ -11,6 +11,9 @@ and invoke compiler such as clang with correct options.
 Sqlite3 database `~/.cmdrec.db` remembers histories of compiling, so, if you remove
 this database file, then informations on the correct option will disappear.
 
+Thanks
+------
+
 Thanks bear protocol written by Laszlo Nagy. `cmdrecplay` uses bear protocol.
 Bear's approach is system call hacking by LD_PRELOAD,
 and `cmdrecplay` uses its approach too.
@@ -60,7 +63,7 @@ After installation, append the following line in your emacs startup file:
 
     (require 'cmdplay)
 
-The first usage is the follows:
+First per your project:
 
     cd <your_project_directory_which_contains_your_makefile>
     cmdrec -- make
