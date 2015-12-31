@@ -29,7 +29,7 @@
 (flycheck-define-checker c/c++-cmdplay-clang
   "A C/C++ syntax checker using Clang and cmdplay.
 
-See URL `http://clang.llvm.org/' and 'https://github.com/DrScKAWAMOTO/cmdrecplay'."
+See URL `http://clang.llvm.org/' and `https://github.com/DrScKAWAMOTO/cmdrecplay'."
   :command ("cmdplay"
 	    "-f" source-original	    
 	    "--"
@@ -55,7 +55,7 @@ See URL `http://clang.llvm.org/' and 'https://github.com/DrScKAWAMOTO/cmdrecplay
 (flycheck-define-checker c/c++-cmdplay-cppcheck
   "A C/C++ checker using cppcheck and cmdplay.
 
-See URL `http://cppcheck.sourceforge.net/' and 'https://github.com/DrScKAWAMOTO/cmdrecplay'."
+See URL `http://cppcheck.sourceforge.net/' and `https://github.com/DrScKAWAMOTO/cmdrecplay'."
   :command ("cmdplay"
 	    "-f" source-original	    
 	    "--"
