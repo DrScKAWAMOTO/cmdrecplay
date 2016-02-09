@@ -488,26 +488,28 @@ int play_patterns_apply(const PlayPatterns_s* me, ParameterSet_s* parameter_set)
     }
   if (one_record_offset == -1)
     {
+      if (no_records_offset1 < 0)
+        {
+          fprintf(stderr, "%s:1:1: warning: cmdplay: no suitable patterns, "
+                  "modify `cmdplay.conf'.\n",
+                  parameterSet_refer_string_value(parameter_set,
+                                                  PARAMETER_TYPE_OPTFILE));
+          exit(EXIT_FAILURE);
+        }
       parameterSet_copy(parameter_set, parameter_sets + no_records_offset1);
       if (no_records_offset2 >= 0)
         {
-          fprintf(stderr, "%s:1:1: error: cmdplay many patterns `%s' and `%s' suitable "
-                  "but don't match any records.\n",
+          fprintf(stderr, "%s:1:1: warning: cmdplay: too many patterns `%s' and `%s' "
+                  "suitable, but matches no records, modify `cmdplay.conf'.\n",
                   parameterSet_refer_string_value(parameter_set, PARAMETER_TYPE_RECFILE),
                   me->patterns[no_records_offset1].pattern_name,
                   me->patterns[no_records_offset2].pattern_name);
           exit(EXIT_FAILURE);
         }
-      if (no_records_offset1 < 0)
-        {
-          fprintf(stderr, "%s:1:1: error: cmdplay no suitable patterns, "
-                  "modify `cmdplay.conf'.\n",
-                  parameterSet_refer_string_value(parameter_set, PARAMETER_TYPE_RECFILE));
-          exit(EXIT_FAILURE);
-        }
-      fprintf(stderr, "%s:1:1: warning: cmdplay no suitable records, "
-              "execute `cmdrec gmake'.\n",
-              parameterSet_refer_string_value(parameter_set, PARAMETER_TYPE_RECFILE));
+      fprintf(stderr, "%s:1:1: warning: cmdplay: no suitable records, "
+              "execute `cmdrec make'.\n",
+              parameterSet_refer_string_value(parameter_set,
+                                              PARAMETER_TYPE_RECFILE));
       exit(EXIT_FAILURE);
     }
   else

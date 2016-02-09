@@ -42,7 +42,7 @@ It could be the best to build it in a separate build directory.
 
     mkdir build
     cd build
-	cmake ..
+    cmake ..
     make all
     make package # to make packages
     sudo make install # to install
@@ -52,7 +52,7 @@ For example, debug configuration is the follows,
 
     mkdir build
     cd build
-	cmake -DCMAKE_BUILD_TYPE=Debug ..
+    cmake -DCMAKE_BUILD_TYPE=Debug ..
     make all
 
 
