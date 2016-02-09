@@ -1,8 +1,2 @@
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmdrec.1.in ${CMAKE_CURRENT_BINARY_DIR}/cmdrec.1)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/cmdplay.1.in ${CMAKE_CURRENT_BINARY_DIR}/cmdplay.1)
 
 include(GNUInstallDirs)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmdrec.1
-    DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmdplay.1
-    DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)

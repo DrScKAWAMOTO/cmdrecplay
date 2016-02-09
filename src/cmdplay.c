@@ -109,7 +109,10 @@ int main(int argc, char* argv[])
 #endif
   if (execvp(argvs.argv[0], argvs.argv) < 0)
     {
-      perror("cmdplay: execvp");
+      if (errno == ENOENT)
+        fprintf(stderr, "cmdplay: executable `%s' is not found.\n", argvs.argv[0]);
+      else
+        perror("cmdplay: execvp");
       exit(EXIT_FAILURE);
     }
   return 0;
