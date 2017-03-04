@@ -78,14 +78,6 @@ If your include pathes or macro defines are changed, then you need to executing 
 Known issues
 ------------
 
-Compiler wrappers like [ccache][CCACHE] and [distcc][DISTCC] could cause
-duplicates or missing items in the compilation database. Make sure you have
-been disabled before you run Bear.
-
-  [CCACHE]: http://ccache.samba.org/
-  [DISTCC]: http://code.google.com/p/distcc/
-
-
 Problem reports
 ---------------
 
@@ -95,4 +87,4 @@ tracker][ISSUES]. Please describing the bug and where you found it. If you
 have a suggestion how to fix it, include that as well. Patches are also
 welcome.
 
-  [ISSUES]: https://github.com/rizsotto/Bear/issues
+  [ISSUES]: https://github.com/DrScKAWAMOTO/cmdrecplay
