@@ -44,7 +44,6 @@ It could be the best to build it in a separate build directory.
     cd build
     cmake ..
     make all
-    make package # to make packages
     sudo make install # to install
 
 You can configure the build process with passing arguments to cmake.
