@@ -507,7 +507,7 @@ int play_patterns_apply(const PlayPatterns_s* me, ParameterSet_s* parameter_set)
           exit(EXIT_FAILURE);
         }
       fprintf(stderr, "%s:1:1: warning: cmdplay: no suitable records, "
-              "execute `cmdrec make'.\n",
+              "execute `cmdrec -- make'.\n",
               parameterSet_refer_string_value(parameter_set,
                                               PARAMETER_TYPE_RECFILE));
       exit(EXIT_FAILURE);

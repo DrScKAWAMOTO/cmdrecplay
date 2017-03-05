@@ -15,7 +15,7 @@ Thanks
 ------
 
 Thanks bear protocol written by Laszlo Nagy. `cmdrecplay` uses bear protocol.
-Bear's approach is system call hacking by LD_PRELOAD,
+Bear's approach is system call hacking by `LD_PRELOAD`,
 and `cmdrecplay` uses its approach too.
 Bear uses the JSON compilation database, but `cmdrecplay` uses the sqlite3 database.
 For more detail, see https://github.com/rizsotto/Bear .
