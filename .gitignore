@@ -1,3 +1,7 @@
+# Document files
+*~
+*.bak
+
 # Object files
 *.o
 *.ko

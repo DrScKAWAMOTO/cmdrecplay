@@ -87,3 +87,17 @@ have a suggestion how to fix it, include that as well. Patches are also
 welcome.
 
   [ISSUES]: https://github.com/DrScKAWAMOTO/cmdrecplay
+
+
+Author
+------
+
+* Dr.Sc.KAWAMOTO,Takuji (Ext)
+* 川本 琢二（Ｅｘｔ）
+* System Architect (Panasonic Advanced Technology Development Co., Ltd.)
+* システム・アーキテクト (パナソニック アドバンストテクノロジー(株))
+* Doctor of Science (Mathematics)
+* 理学博士 (数学)
+* Jazz Pianist
+* ジャズ・ピアニスト
+* My Freeware Works: Prolog-TK over LISP,TwentyOne,DEDIT,TeX previewer,fontman,WiZ バックアップツール,nm.x,sort.x,hounds,アセンブラ・ディスアセンブラ,TCP/IP over ITRON,FullereneViewer,cmdrecplay,ifendif
