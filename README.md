@@ -100,4 +100,4 @@ Author
 * 理学博士 (数学)
 * Jazz Pianist
 * ジャズ・ピアニスト
-* My Freeware Works: Prolog-TK over LISP,TwentyOne,DEDIT,TeX previewer,fontman,WiZ バックアップツール,nm.x,sort.x,hounds,アセンブラ・ディスアセンブラ,TCP/IP over ITRON,FullereneViewer,cmdrecplay,ifendif
+* My Representative Freeware Works: Prolog-TK over LISP,TwentyOne,DEDIT,TeX previewer,fontman,WiZ backup tool,nm.x,sort.x,hounds,assembler,dis-assembler,TCP/IP over ITRON,FullereneViewer,cmdrecplay,ifendif
