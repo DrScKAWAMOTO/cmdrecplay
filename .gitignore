@@ -36,5 +36,5 @@
 *.dSYM/
 
 # project oriented
-build
+/build
 /README.html
