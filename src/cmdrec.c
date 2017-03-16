@@ -110,7 +110,7 @@ int main(int argc, char * const argv[])
       set_environment(ENV_PRELOAD, commands.libcmdrp_file);
       set_environment(ENV_OUTPUT, commands.socket_file);
 #ifdef ENV_FLAT
-      set_environment(ENV_FLAT, "1");
+      set_environment(ENV_FLAT, "YES");
 #endif
       if (-1 == execvp(*commands.unprocessed_argv, commands.unprocessed_argv))
         {
