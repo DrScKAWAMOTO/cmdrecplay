@@ -62,12 +62,12 @@ After installation, append the following line in your emacs startup file:
 
     (require 'cmdplay)
 
-First per your project:
+First, per your project:
 
     cd <your_project_directory_which_contains_your_makefile>
     cmdrec -- make
 
-The `--` separate the parameters from the build command. The output sqlite3 file
+The `--` separates the parameters from the build command. The output sqlite3 file
 `~/.cmdrec.db` found in your home directory.
 For more options, you can check by passing `-h` parameter to `cmdrec` or `cmdplay` commands.
 
