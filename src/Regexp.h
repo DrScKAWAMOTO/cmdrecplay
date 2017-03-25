@@ -1,7 +1,7 @@
 /*
  * Project: cmdrecplay
- * Version: 1.0
- * Copyright: (C) 2014-2016 Dr.Sc.KAWAMOTO,Takuji (Ext)
+ * Version: 1.1
+ * Copyright: (C) 2014-2017 Dr.Sc.KAWAMOTO,Takuji (Ext)
  * Create: 2014/05/03 22:39:22 JST
  */
 
@@ -28,6 +28,6 @@ extern void match_lines_term(MatchLines_s* me);
 
 #endif /* __REGEXP_H__ */
 
-/* Local Variables:	*/
-/* mode: c++		*/
-/* End:			*/
+/* Local Variables:     */
+/* mode: c++            */
+/* End:                 */

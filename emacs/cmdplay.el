@@ -17,6 +17,33 @@
 ;;; 02139, USA.
 ;;;
 
+;;; After installation, append the following line in your emacs startup file:
+;;;
+;;;     (require 'cmdplay)
+;;;     (add-hook 'c-mode-common-hook 'cmdplay-clang-set-cflags)
+;;;
+;;; To associate with the `compile' command, write as follows too.
+;;;
+;;;     (require 'cmdplay)
+;;;     (setq compile-command "LANG=C cmdrec -- make -k ")
+;;;     (advice-add 'compile :around #'cmdplay-clang-advice-around-compile)
+;;;     (advice-add 'recompile :around #'cmdplay-clang-advice-around-compile)
+;;;
+;;; First, per your project:
+;;;
+;;;     cd <your_project_directory_which_contains_your_makefile>
+;;;     cmdrec -- make
+;;;
+;;; If your project is cmake, you should do as follows instead:
+;;;
+;;;     cd <your_project_directory_which_contains_your_CMakeLists.txt>
+;;;     mkdir build
+;;;     cd build
+;;;     cmdrec -- sh -c "cmake ..; make all"
+;;;
+;;; The `--` separates the parameters from the build command. The output sqlite3 file
+;;; `~/.cmdrec.db` found in your home directory.
+
 ;;;
 ;;; flycheck related
 ;;;      define flycheck checkers
@@ -31,10 +58,10 @@
 
 See URL `http://clang.llvm.org/' and `https://github.com/DrScKAWAMOTO/cmdrecplay'."
   :command ("cmdplay"
-	    "-f" source-original	    
-	    "--"
-	    (eval (pcase major-mode (`c++-mode "clang++-on-the-fly-check")
-			 (`c-mode "clang-on-the-fly-check")))
+            "-f" source-original
+            "--"
+            (eval (pcase major-mode (`c++-mode "clang++-on-the-fly-check")
+                         (`c-mode "clang-on-the-fly-check")))
             "-x" (eval (pcase major-mode (`c++-mode "c++") (`c-mode "c")))
             ;; We must stay in the same directory, to properly resolve #include
             ;; with quotes
@@ -57,9 +84,9 @@ See URL `http://clang.llvm.org/' and `https://github.com/DrScKAWAMOTO/cmdrecplay
 
 See URL `http://cppcheck.sourceforge.net/' and `https://github.com/DrScKAWAMOTO/cmdrecplay'."
   :command ("cmdplay"
-	    "-f" source-original	    
-	    "--"
-	    "cppcheck-on-the-fly-check"
+            "-f" source-original
+            "--"
+            "cppcheck-on-the-fly-check"
             ;; We must stay in the same directory, to properly resolve #include
             ;; with quotes
             source-inplace)
@@ -73,9 +100,44 @@ See URL `http://cppcheck.sourceforge.net/' and `https://github.com/DrScKAWAMOTO/
 
 ;;;
 ;;; auto-complete related
-;;;      define auto-complete sources
-;;;          c/c++-cmdplay-clang
-;;;          c/c++-cmdplay-cppcheck
+;;;      define function of automatic setting ac-clang-cflags
 ;;;
+
+(defun cmdplay-clang-set-cflags-buffer (buffer)
+  "Set `ac-clang-cflags' of BUFFER to new cflags for ac-clang by executing cmdplay."
+  (interactive)
+  (save-excursion
+    (set-buffer buffer)
+    (let* ((arg2 (format "%s" buffer-file-name))
+           (arg1 (cond ((eq major-mode 'c-mode) "clang-completion")
+                       (t "clang++-completion")))
+           (cmd (format "cmdplay -- %s %s" arg1 arg2)))
+      (when buffer-file-name
+        (message (format "execute `%s'" cmd))
+        (setq ac-clang-cflags
+              (split-string
+               (shell-command-to-string cmd)))
+        (ac-clang-update-cmdlineargs)))))
+
+(defun cmdplay-clang-set-cflags-all-buffers ()
+  "Set `ac-clang-cflags' of all buffers to new cflags for ac-clang by executing cmdplay."
+  (interactive)
+  (mapcar 'cmdplay-clang-set-cflags-buffer (buffer-list)))
+
+(defun cmdplay-clang-set-cflags ()
+  "Set `ac-clang-cflags' to new cflags for ac-clang by executing cmdplay."
+  (interactive)
+  (cmdplay-clang-set-cflags-buffer (current-buffer)))
+
+(defun cmdplay-clang-sentinel (process event)
+  (when (string= event "finished\n")
+    (mapcar 'cmdplay-clang-set-cflags-buffer (buffer-list))))
+
+(defun cmdplay-clang-advice-around-compile (f &rest args)
+  "Set `ac-clang-cflags' of all buffers to new cflags for ac-clang by executing cmdplay."
+  (let ((ret (apply f args)))
+    (message "cmdplay-clang-advice-around-compile called")
+    (set-process-sentinel (get-buffer-process ret) 'cmdplay-clang-sentinel)
+    ret))
 
 (provide 'cmdplay)

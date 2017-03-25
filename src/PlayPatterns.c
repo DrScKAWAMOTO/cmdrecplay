@@ -1,7 +1,7 @@
 /*
  * Project: cmdrecplay
- * Version: 1.0
- * Copyright: (C) 2014-2016 Dr.Sc.KAWAMOTO,Takuji (Ext)
+ * Version: 1.1
+ * Copyright: (C) 2014-2017 Dr.Sc.KAWAMOTO,Takuji (Ext)
  * Create: 2014/05/02 11:08:33 JST
  */
 
@@ -140,7 +140,7 @@ static void play_pattern_apply_pre(const PlayPattern_s* me, ParameterSet_s* para
   MatchLocation_s mlo;
   unsigned int start_pos;
   unsigned int end_pos;
-  /* playfile: ¤òÅ¬ÍÑ¤¹¤ë */
+  /* playfile: ã‚’é©ç”¨ã™ã‚‹ */
   assert(me->playfile.definition_type == DEFINITION_TYPE_PLAYFILE);
   assert(me->playfile.number_of_elements == 1);
   /* playargs =~ /.../ */
@@ -148,7 +148,7 @@ static void play_pattern_apply_pre(const PlayPattern_s* me, ParameterSet_s* para
   assert((me->playfile.elements[0].operator_type == OPERATOR_TYPE_PARAMETER_MATCHED) ||
          (me->playfile.elements[0].operator_type == OPERATOR_TYPE_PARAMETER_DIDNT_MATCH));
   assert(me->playfile.elements[0].parameter_type == PARAMETER_TYPE_PLAYARGS);
-  /* Å¬ÍÑ */
+  /* é©ç”¨ */
   regexp_search_all(&mli, me->playfile.elements[0].operand,
                     parameterSet_refer_string_value(parameter_set,
                                                     PARAMETER_TYPE_PLAYARGS));
@@ -190,7 +190,7 @@ static void play_pattern_apply_pre(const PlayPattern_s* me, ParameterSet_s* para
           return;
         }
     }
-  /* optfile ¤¬Ìµ¤±¤ì¤Ð plyfile ¤ÈÆ±¤¸¤â¤Î¤òÀßÄê¤¹¤ë¡£ */
+  /* optfile ãŒç„¡ã‘ã‚Œã° plyfile ã¨åŒã˜ã‚‚ã®ã‚’è¨­å®šã™ã‚‹ã€‚ */
   if (parameterSet_refer_string_value(parameter_set, PARAMETER_TYPE_OPTFILE) == NULL)
     {
       parameterSet_set_by_copy_string(parameter_set, PARAMETER_TYPE_OPTFILE,
@@ -198,7 +198,7 @@ static void play_pattern_apply_pre(const PlayPattern_s* me, ParameterSet_s* para
                                                     PARAMETER_TYPE_PLAYFILE));
     }
 
-  /* playmatch: ¤òÅ¬ÍÑ¤¹¤ë */
+  /* playmatch: ã‚’é©ç”¨ã™ã‚‹ */
   assert(me->playmatch.definition_type == DEFINITION_TYPE_PLAYMATCH);
   for (int offset = 0; offset < me->playmatch.number_of_elements; ++offset)
     {
@@ -213,7 +213,7 @@ static void play_pattern_apply_pre(const PlayPattern_s* me, ParameterSet_s* para
           int result;
           /* playcmd =~ /.../ */
           assert(element->parameter_type == PARAMETER_TYPE_PLAYCMD);
-          /* Å¬ÍÑ */
+          /* é©ç”¨ */
           text = parameterSet_refer_string_value(parameter_set, PARAMETER_TYPE_PLAYCMD);
           start_pos = 0;
           end_pos = strlen(text);
@@ -240,7 +240,7 @@ static void play_pattern_apply_pre(const PlayPattern_s* me, ParameterSet_s* para
           /* optfile == recfile */
           assert((element->parameter_type == PARAMETER_TYPE_PLAYFILE) ||
                  (element->parameter_type == PARAMETER_TYPE_OPTFILE));
-          /* Å¬ÍÑ */
+          /* é©ç”¨ */
           text1 = parameterSet_refer_string_value(parameter_set, element->parameter_type);
           if (text1 == NULL)
             {
@@ -271,7 +271,7 @@ static void play_pattern_apply_post(const PlayPattern_s* me,
   const Element_s* element;
   char* sum;
 
-  /* execcwd: ¤òÅ¬ÍÑ¤¹¤ë */
+  /* execcwd: ã‚’é©ç”¨ã™ã‚‹ */
   assert(me->execcwd.definition_type == DEFINITION_TYPE_EXECCWD);
   assert(me->execcwd.number_of_elements == 1);
   element = me->execcwd.elements;
@@ -280,7 +280,7 @@ static void play_pattern_apply_post(const PlayPattern_s* me,
   /* '...' */
   assert((element->operator_type == OPERATOR_TYPE_PARAMETER) ||
          (element->operator_type == OPERATOR_TYPE_STRING));
-  /* Å¬ÍÑ */
+  /* é©ç”¨ */
   if (element->operator_type == OPERATOR_TYPE_PARAMETER)
     {
       ParameterType_e parameter_type;
@@ -297,7 +297,7 @@ static void play_pattern_apply_post(const PlayPattern_s* me,
                                       element->operand);
     }
 
-  /* execcmd: ¤òÅ¬ÍÑ¤¹¤ë */
+  /* execcmd: ã‚’é©ç”¨ã™ã‚‹ */
   assert(me->execcmd.definition_type == DEFINITION_TYPE_EXECCMD);
   assert(me->execcmd.number_of_elements == 1);
   element = me->execcmd.elements;
@@ -306,7 +306,7 @@ static void play_pattern_apply_post(const PlayPattern_s* me,
   /* '...' */
   assert((element->operator_type == OPERATOR_TYPE_PARAMETER) ||
          (element->operator_type == OPERATOR_TYPE_STRING));
-  /* Å¬ÍÑ */
+  /* é©ç”¨ */
   if (element->operator_type == OPERATOR_TYPE_PARAMETER)
     {
       ParameterType_e parameter_type;
@@ -323,7 +323,7 @@ static void play_pattern_apply_post(const PlayPattern_s* me,
                                       element->operand);
     }
 
-  /* execargs: ¤òÅ¬ÍÑ¤¹¤ë */
+  /* execargs: ã‚’é©ç”¨ã™ã‚‹ */
   assert(me->execargs.definition_type == DEFINITION_TYPE_EXECARGS);
   sum = malloc(1);
   sum[0] = '\0';
@@ -542,6 +542,6 @@ void play_patterns_print(PlayPatterns_s* me)
     play_pattern_print(me->patterns + offset);
 }
 
-/* Local Variables:	*/
-/* mode: c		*/
-/* End:			*/
+/* Local Variables:     */
+/* mode: c              */
+/* End:                 */

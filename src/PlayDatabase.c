@@ -1,7 +1,7 @@
 /*
  * Project: cmdrecplay
- * Version: 1.0
- * Copyright: (C) 2014-2016 Dr.Sc.KAWAMOTO,Takuji (Ext)
+ * Version: 1.1
+ * Copyright: (C) 2014-2017 Dr.Sc.KAWAMOTO,Takuji (Ext)
  * Create: 2014/05/04 13:43:35 JST
  */
 
@@ -59,14 +59,8 @@ int database_play(ParameterSet_s* parameter_set)
 {
   sqlite3 *db;
   char *sql;
-  /* SQLite ¥Ç¡¼¥¿¥Ù¡¼¥¹¤ò open/create */
+  /* SQLite ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹ã‚’ open/create */
   db = database_init();
-#if USE_TRANSACTION
-#if DEBUG_LEVEL >= 3
-  /* BEGIN TRANSACTION */
-  database_sql_exec(db, "BEGIN", 0, 0);
-#endif
-#endif
   /* SELECT */
   count = 0;
   paramset = parameter_set;
@@ -79,14 +73,10 @@ int database_play(ParameterSet_s* parameter_set)
 #endif
 #endif
   database_sql_exec(db, sql, callback, 0);
-#if USE_TRANSACTION
-  /* COMMIT TRANSACTION */
-  database_sql_exec(db, "COMMIT", 0, 0);
-#endif
   database_term(db);
   return count;
 }
 
-/* Local Variables:	*/
-/* mode: c		*/
-/* End:			*/
+/* Local Variables:     */
+/* mode: c              */
+/* End:                 */

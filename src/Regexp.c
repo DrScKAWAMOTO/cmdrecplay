@@ -1,7 +1,7 @@
 /*
  * Project: cmdrecplay
- * Version: 1.0
- * Copyright: (C) 2014-2016 Dr.Sc.KAWAMOTO,Takuji (Ext)
+ * Version: 1.1
+ * Copyright: (C) 2014-2017 Dr.Sc.KAWAMOTO,Takuji (Ext)
  * Create: 2014/05/03 22:42:34 JST
  */
 
@@ -181,6 +181,6 @@ void match_lines_term(MatchLines_s* me)
   me->matched_lines = NULL;
 }
 
-/* Local Variables:	*/
-/* mode: c		*/
-/* End:			*/
+/* Local Variables:     */
+/* mode: c              */
+/* End:                 */

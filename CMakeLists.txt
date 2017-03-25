@@ -1,8 +1,7 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.7.1)
 
 project(cmdrecplay)
-set(BEAR_VERSION "1.4")
-set(CMDRECPLAY_VERSION "1.0")
+set(CMDRECPLAY_VERSION "2.0pre1")
 
 set(CPACK_PACKAGE_NAME "cmdrecplay")
 set(CPACK_PACKAGE_CONTACT "Dr.Sc.KAWAMOTO,Takuji")
@@ -34,12 +33,19 @@ include(GNUInstallDirs)
 install(FILES LICENSE README.md ChangeLog.md
   DESTINATION ${CMAKE_INSTALL_DOCDIR})
 
-set(CMDREC_LIB_FILE ${CMAKE_SHARED_LIBRARY_PREFIX}cmdpreload${CMAKE_SHARED_LIBRARY_SUFFIX})
-set(DEFAULT_PRELOAD_FILE ${CMAKE_INSTALL_FULL_LIBDIR}/${CMDREC_LIB_FILE})
 set(DEFAULT_CMDREC_CONFIG_FILE ${CMAKE_INSTALL_FULL_SYSCONFDIR}/cmdrec.conf)
 set(DEFAULT_CMDPLAY_CONFIG_FILE ${CMAKE_INSTALL_FULL_SYSCONFDIR}/cmdplay.conf)
+set(INSTALL_FULL_SBINDIR ${CMAKE_INSTALL_FULL_SBINDIR})
 
 add_subdirectory(src)
 add_subdirectory(emacs)
-#add_subdirectory(test)
 #add_subdirectory(doc)
+
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+  message(STATUS "*** dump start cmake variables ***")
+  get_cmake_property(_variableNames VARIABLES)
+  foreach(_variableName ${_variableNames})
+          message(STATUS "${_variableName}=${${_variableName}}")
+  endforeach()
+  message(STATUS "*** dump end ***")
+endif()

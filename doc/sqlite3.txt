@@ -1,4 +1,4 @@
-cmdrec ¤Î¥Ç¡¼¥¿¥Ù¡¼¥¹
+cmdrec ã®ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹
 
 ~/.cmdrec.db
 .schema cmdrec

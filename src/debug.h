@@ -1,7 +1,7 @@
 /*
  * Project: cmdrecplay
- * Version: 1.0
- * Copyright: (C) 2014-2016 Dr.Sc.KAWAMOTO,Takuji (Ext)
+ * Version: 1.1
+ * Copyright: (C) 2014-2017 Dr.Sc.KAWAMOTO,Takuji (Ext)
  * Create: 2014/05/06 16:43:22 JST
  */
 
@@ -10,15 +10,15 @@
 
 #if !defined(NDEBUG)
 
-// #define DEBUG_LEVEL 1 // ºÆÀ¸¼Â¹Ô»ş¤Î¥Ñ¥é¥á¡¼¥¿É½¼¨
-// #define DEBUG_LEVEL 2 // ¾åµ­¡Ü¥Ñ¥¿¡¼¥ó·èÄê²áÄø¤Î¥í¥°
-#define DEBUG_LEVEL 3 // ¾åµ­¡Ü¥Ç¡¼¥¿¥Ù¡¼¥¹¸¡º÷¥í¥°
+// #define DEBUG_LEVEL 1 // éŒ²å†å®Ÿè¡Œæ™‚ã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿è¡¨ç¤º
+// #define DEBUG_LEVEL 2 // ä¸Šè¨˜ï¼‹ãƒ‘ã‚¿ãƒ¼ãƒ³æ±ºå®šéç¨‹ã®ãƒ­ã‚°
+#define DEBUG_LEVEL 3 // ä¸Šè¨˜ï¼‹ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹æ¤œç´¢ãƒ­ã‚°
 // #define DEBUG_LEVEL 4
 
 #endif
 
 #endif /* __DEBUG_H__ */
 
-/* Local Variables:	*/
-/* mode: c		*/
-/* End:			*/
+/* Local Variables:     */
+/* mode: c              */
+/* End:                 */

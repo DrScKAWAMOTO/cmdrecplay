@@ -1,7 +1,7 @@
 /*
  * Project: cmdrecplay
- * Version: 1.0
- * Copyright: (C) 2014-2016 Dr.Sc.KAWAMOTO,Takuji (Ext)
+ * Version: 1.1
+ * Copyright: (C) 2014-2017 Dr.Sc.KAWAMOTO,Takuji (Ext)
  * Create: 2014/05/02 11:08:33 JST
  */
 
@@ -144,7 +144,7 @@ void parameterSet_set_by_copy_as_realpath(ParameterSet_s* me, ParameterType_e pa
 
 void parameterSet_set_string_value(ParameterSet_s* me, ParameterType_e parameter,
                                    char* value_as_string)
-{ /* value_as_string ¤Ï malloc() ¤·¤¿¤â¤Î¤òÅÏ¤¹¤³¤È¡£³«Êü¤ÎÀÕÌ³¤Ï me ¤Ë°Ü´É¤µ¤ì¤ë */
+{ /* value_as_string ã¯ malloc() ã—ãŸã‚‚ã®ã‚’æ¸¡ã™ã“ã¨ã€‚é–‹æ”¾ã®è²¬å‹™ã¯ me ã«ç§»ç®¡ã•ã‚Œã‚‹ */
   switch (parameter)
     {
     case PARAMETER_TYPE_RECCMD:
@@ -254,7 +254,7 @@ void parameterSet_set_argv_value(ParameterSet_s* me, ParameterType_e parameter,
 
 const char* parameterSet_refer_string_value(const ParameterSet_s* me,
                                             ParameterType_e parameter)
-{ /* me ¤ÎÃæ¿È¤ò»²¾È¤·¤ÆÊÖ¤¹¤Î¤Ç¡¢³«Êü¤Ê¤É¤·¤Æ¤Ï¤¤¤±¤Ê¤¤ */
+{ /* me ã®ä¸­èº«ã‚’å‚ç…§ã—ã¦è¿”ã™ã®ã§ã€é–‹æ”¾ãªã©ã—ã¦ã¯ã„ã‘ãªã„ */
   switch (parameter)
     {
     case PARAMETER_TYPE_RECCMD:
@@ -380,6 +380,6 @@ void parameterSet_print(ParameterSet_s* me)
     fprintf(stderr, "ppid = '%s'\n", me->ppid);
 }
 
-/* Local Variables:	*/
-/* mode: c		*/
-/* End:			*/
+/* Local Variables:     */
+/* mode: c              */
+/* End:                 */

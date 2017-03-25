@@ -1,7 +1,7 @@
 /*
  * Project: cmdrecplay
- * Version: 1.0
- * Copyright: (C) 2014-2016 Dr.Sc.KAWAMOTO,Takuji (Ext)
+ * Version: 1.1
+ * Copyright: (C) 2014-2017 Dr.Sc.KAWAMOTO,Takuji (Ext)
  * Create: 2014/05/04 13:43:35 JST
  */
 
@@ -15,14 +15,14 @@ void database_rec(const ParameterSet_s* parameter_set)
 {
   sqlite3 *db;
   char *sql;
-  /* SQLite ¥Ç¡¼¥¿¥Ù¡¼¥¹¤ò open/create */
+  /* SQLite ãƒ‡ãƒ¼ã‚¿ãƒ™ãƒ¼ã‚¹ã‚’ open/create */
   db = database_init();
 #if USE_TRANSACTION
   /* BEGIN TRANSACTION */
   database_sql_exec(db, "BEGIN", 0, 0);
 #endif
   /* INSERT */
-  sql = sqlite3_mprintf("INSERT INTO cmdrec VALUES (%Q,%Q,%Q,%Q,%Q,%Q,%Q);",
+  sql = sqlite3_mprintf("INSERT INTO cmdrec VALUES (%Q,%Q,%Q,%Q,'execvp',0,0);",
                         parameterSet_refer_string_value(parameter_set,
                                                         PARAMETER_TYPE_RECFILE),
                         parameterSet_refer_string_value(parameter_set,
@@ -30,13 +30,7 @@ void database_rec(const ParameterSet_s* parameter_set)
                         parameterSet_refer_string_value(parameter_set,
                                                         PARAMETER_TYPE_RECCWD),
                         parameterSet_refer_string_value(parameter_set,
-                                                        PARAMETER_TYPE_RECARGS),
-                        parameterSet_refer_string_value(parameter_set,
-                                                        PARAMETER_TYPE_FUNCTION),
-                        parameterSet_refer_string_value(parameter_set,
-                                                        PARAMETER_TYPE_PID),
-                        parameterSet_refer_string_value(parameter_set,
-                                                        PARAMETER_TYPE_PPID));
+                                                        PARAMETER_TYPE_RECARGS));
 #if !defined(NDEBUG)
 #if DEBUG_LEVEL >= 3
   fprintf(stderr, "sql = `%s'\n", sql);
@@ -51,6 +45,6 @@ void database_rec(const ParameterSet_s* parameter_set)
   database_term(db);
 }
 
-/* Local Variables:	*/
-/* mode: c		*/
-/* End:			*/
+/* Local Variables:     */
+/* mode: c              */
+/* End:                 */

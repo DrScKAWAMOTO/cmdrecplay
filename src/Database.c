@@ -1,7 +1,7 @@
 /*
  * Project: cmdrecplay
- * Version: 1.0
- * Copyright: (C) 2014-2016 Dr.Sc.KAWAMOTO,Takuji (Ext)
+ * Version: 1.1
+ * Copyright: (C) 2014-2017 Dr.Sc.KAWAMOTO,Takuji (Ext)
  * Create: 2014/05/04 13:43:35 JST
  */
 
@@ -22,7 +22,7 @@ sqlite3* database_init(void)
   char *sql;
   const char* home;
   char database_file_name[PATH_MAX];
-  /* SQLite •«°º•ø•Ÿ°º•π§Ú open/create */
+  /* SQLite „Éá„Éº„Çø„Éô„Éº„Çπ„Çí open/create */
   home = (const char*)getenv("HOME");
   if (home)
     sprintf(database_file_name, "%s/.cmdrec.db", home);
@@ -35,7 +35,7 @@ sqlite3* database_init(void)
       fprintf(stderr, "sqlite3_open_v2(): error result = %d\n", result);
       exit(EXIT_FAILURE);
     }
-  /* CREATE TABLE(¥˚§À¬∏∫ﬂ§∑§∆§™§Ï§–result=1) */
+  /* CREATE TABLE(Êó¢„Å´Â≠òÂú®„Åó„Å¶„Åä„Çå„Å∞result=1) */
   database_sql_exec(db, DATABASE_CREATE_TABLE_SQL, 0, 1);
   return db;
 }
@@ -59,6 +59,6 @@ void database_sql_exec(sqlite3* db, const char* sql,
     }
 }
 
-/* Local Variables:	*/
-/* mode: c		*/
-/* End:			*/
+/* Local Variables:     */
+/* mode: c              */
+/* End:                 */

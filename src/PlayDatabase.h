@@ -1,7 +1,7 @@
 /*
  * Project: cmdrecplay
- * Version: 1.0
- * Copyright: (C) 2014-2016 Dr.Sc.KAWAMOTO,Takuji (Ext)
+ * Version: 1.1
+ * Copyright: (C) 2014-2017 Dr.Sc.KAWAMOTO,Takuji (Ext)
  * Create: 2014/05/04 13:27:35 JST
  */
 
@@ -11,13 +11,13 @@
 #include "ParameterSet.h"
 
 /* database_play() */
-/* return code == 2 ...... ¤Ê¤¼¤«2¤Ä°Ê¾å¥Ş¥Ã¥Á¤·¤¿¡£parameter_set ¤ÏÊÑ²½¤·¤Ê¤¤¡£ */
-/* return code == 1 ...... 1¤Ä¥Ş¥Ã¥Á¤·¤¿¡£parameter_set ¤Ëµ­Ï¿»ş¥Ñ¥é¥á¡¼¥¿¤ò¥»¥Ã¥È¡£ */
-/* return code == 0 ...... ¥Ş¥Ã¥Á¤·¤Ê¤«¤Ã¤¿¡£parameter_set ¤ÏÊÑ²½¤·¤Ê¤¤¡£ */
+/* return code == 2 ...... ãªãœã‹2ã¤ä»¥ä¸Šãƒãƒƒãƒã—ãŸã€‚parameter_set ã¯å¤‰åŒ–ã—ãªã„ã€‚ */
+/* return code == 1 ...... 1ã¤ãƒãƒƒãƒã—ãŸã€‚parameter_set ã«è¨˜éŒ²æ™‚ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’ã‚»ãƒƒãƒˆã€‚ */
+/* return code == 0 ...... ãƒãƒƒãƒã—ãªã‹ã£ãŸã€‚parameter_set ã¯å¤‰åŒ–ã—ãªã„ã€‚ */
 extern int database_play(ParameterSet_s* parameter_set);
 
 #endif /* __PLAYDATABASE_H__ */
 
-/* Local Variables:	*/
-/* mode: c		*/
-/* End:			*/
+/* Local Variables:     */
+/* mode: c              */
+/* End:                 */

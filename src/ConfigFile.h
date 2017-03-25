@@ -1,7 +1,7 @@
 /*
  * Project: cmdrecplay
- * Version: 1.0
- * Copyright: (C) 2014-2016 Dr.Sc.KAWAMOTO,Takuji (Ext)
+ * Version: 1.1
+ * Copyright: (C) 2014-2017 Dr.Sc.KAWAMOTO,Takuji (Ext)
  * Create: 2014/05/02 10:15:23 JST
  */
 
@@ -11,6 +11,7 @@
 #include <stdio.h>
 
 #define LENGTH_OF_BUFFER 256
+#define LENGTH_OF_PATH_BUFFER 1024
 
 typedef enum {
   TOKEN_UNKNOWN = 0,
@@ -68,6 +69,6 @@ extern void config_file_read_keyword(ConfigFile_s* me, const char* keyword);
 
 #endif /* __CONFIGFILE_H__ */
 
-/* Local Variables:	*/
-/* mode: c		*/
-/* End:			*/
+/* Local Variables:     */
+/* mode: c              */
+/* End:                 */

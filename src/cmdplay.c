@@ -1,32 +1,12 @@
 /*
  * Project: cmdrecplay
- * Version: 1.0
- * Copyright: (C) 2014-2016 Dr.Sc.KAWAMOTO,Takuji (Ext)
+ * Version: 2.0
+ * Copyright: (C) 2014-2017 Dr.Sc.KAWAMOTO,Takuji (Ext)
  * Create: 2014/05/04 13:43:35 JST
- */
-/*  Copyright (C) 2012-2014 by László Nagy
-    This file is part of Bear.
-    This file is part of Cmdrec/Cmdplay.
-
-    Bear is a tool to generate compilation database for clang tooling.
-
-    Bear is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Bear is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
 #include "debug.h"
-#include "protocol.h"
 #include "PlayPatterns.h"
 #include "PlayDatabase.h"
 
@@ -137,7 +117,7 @@ static void parse(int argc, char* argv[], cmdplay_commands_t * commands)
 {
   // parse command line arguments.
   int opt;
-  while ((opt = getopt(argc, argv, "c:f:cexvh?")) != -1)
+  while ((opt = getopt(argc, argv, "c:f:xvh?")) != -1)
     {
       switch (opt)
         {
@@ -173,14 +153,12 @@ static void parse(int argc, char* argv[], cmdplay_commands_t * commands)
 static void print_version()
 {
   fprintf(stdout,
-          "Bear %s\n"
-          "Copyright (C) 2012-2014 by László Nagy\n"
           "Cmdplay %s\n"
           "Copyright (C) 2014-2016 by Dr.Sc.KAWAMOTO,Takuji (Ext)\n"
-          "This is free software; see the source for copying conditions. "
+          "This is free software; see the source for copying conditions.\n"
           "There is NO warranty; not even for MERCHANTABILITY or FITNESS "
           "FOR A PARTICULAR PURPOSE.\n",
-          BEAR_VERSION, CMDRECPLAY_VERSION);
+          CMDRECPLAY_VERSION);
 }
 
 static void print_usage(char const * const name)
@@ -237,6 +215,6 @@ static void cmdplay_term(PlayPatterns_s* play_patterns)
   play_patterns_term(play_patterns);
 }
 
-/* Local Variables:	*/
-/* mode: c		*/
-/* End:			*/
+/* Local Variables:     */
+/* mode: c              */
+/* End:                 */

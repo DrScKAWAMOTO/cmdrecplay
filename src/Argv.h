@@ -1,7 +1,7 @@
 /*
  * Project: cmdrecplay
- * Version: 1.0
- * Copyright: (C) 2014-2016 Dr.Sc.KAWAMOTO,Takuji (Ext)
+ * Version: 1.1
+ * Copyright: (C) 2014-2017 Dr.Sc.KAWAMOTO,Takuji (Ext)
  * Create: 2014/05/01 23:55:21 JST
  */
 
@@ -18,11 +18,11 @@ extern void argv_init(Argv_s* me, char* argv[]);
 extern void argv_term(Argv_s* me);
 extern void argv_decode_from_string(Argv_s* me, const char* from);
 /* argv_encode_to_string() */
-/*  ÷§Í√Õ§œ malloc() §µ§Ï§øŒŒ∞Ë */
+/* Ëøî„ÇäÂÄ§„ÅØ malloc() „Åï„Çå„ÅüÈ†òÂüü */
 extern char* argv_encode_to_string(const Argv_s* me);
 
 #endif /* __ARGV_H__ */
 
-/* Local Variables:	*/
-/* mode: c		*/
-/* End:			*/
+/* Local Variables:     */
+/* mode: c              */
+/* End:                 */

@@ -1,7 +1,7 @@
 /*
  * Project: cmdrecplay
- * Version: 1.0
- * Copyright: (C) 2014-2016 Dr.Sc.KAWAMOTO,Takuji (Ext)
+ * Version: 1.1
+ * Copyright: (C) 2014-2017 Dr.Sc.KAWAMOTO,Takuji (Ext)
  * Create: 2014/05/02 11:08:33 JST
  */
 
@@ -91,7 +91,7 @@ static int element_read_config(Element_s* me, RequiredElement_s required_element
   config_file_next_word(inpfile);
   found = element_is_parameter(inpfile);
   if (found == PARAMETER_TYPE_UNSPECIFIED)
-    { /* ¥Ñ¥é¥á¡¼¥¿¤Ç¤Ï¤Ê¤¤ */
+    { /* ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã§ã¯ãªã„ */
       if (required_element.only_string && (inpfile->token == TOKEN_STRING))
         {
           me->line_no = inpfile->line_no;
@@ -104,18 +104,18 @@ static int element_read_config(Element_s* me, RequiredElement_s required_element
       return -1;
     }
   if ((together & found) == 0)
-    { /* ¥Ñ¥é¥á¡¼¥¿¤À¤¬´üÂÔ¤µ¤ì¤Æ¤¤¤Ê¤«¤Ã¤¿ */
+    { /* ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã ãŒæœŸå¾…ã•ã‚Œã¦ã„ãªã‹ã£ãŸ */
     not_expected_error:
       fprintf(stderr, "%s:%d: unexpected `%s'.\n",
               inpfile->config_file_name, inpfile->line_no, inpfile->word);
       exit(EXIT_FAILURE);
     }
   me->line_no = inpfile->line_no;
-  /* ¼¡¤Î¸ì¤òÆÉ¤ß¹þ¤ß */
+  /* æ¬¡ã®èªžã‚’èª­ã¿è¾¼ã¿ */
   config_file_next_word(inpfile);
   found2 = element_is_parameter(inpfile);
   if (found2 != PARAMETER_TYPE_UNSPECIFIED)
-    { /* ¼¡¤Î¸ì¤Ï¥Ñ¥é¥á¡¼¥¿ */
+    { /* æ¬¡ã®èªžã¯ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ */
     only_parameter:
       if (required_element.only_parameter & found)
         {
@@ -124,15 +124,15 @@ static int element_read_config(Element_s* me, RequiredElement_s required_element
           config_file_rewind(inpfile);
           return 0;
         }
-      /* ´üÂÔ¤µ¤ì¤Æ¤¤¤Ê¤«¤Ã¤¿ */
+      /* æœŸå¾…ã•ã‚Œã¦ã„ãªã‹ã£ãŸ */
       goto not_expected_error;
     }
   if (inpfile->token == TOKEN_CLOSE)
-    { /* ¼¡¤Î¸ì¤Ï '}' */
+    { /* æ¬¡ã®èªžã¯ '}' */
       goto only_parameter;
     }
   if (element_is_label(inpfile))
-    { /* ¼¡¤Î¸ì¤Ï¥é¥Ù¥ë */
+    { /* æ¬¡ã®èªžã¯ãƒ©ãƒ™ãƒ« */
       goto only_parameter;
     }
   if (inpfile->token == TOKEN_MATCH)
@@ -166,7 +166,7 @@ static int element_read_config(Element_s* me, RequiredElement_s required_element
     }
   else
     {
-      /* ´üÂÔ¤µ¤ì¤Æ¤¤¤Ê¤«¤Ã¤¿ */
+      /* æœŸå¾…ã•ã‚Œã¦ã„ãªã‹ã£ãŸ */
       goto not_expected_error;
     }
 }
@@ -431,6 +431,6 @@ void definition_term(Definition_s* me)
     element_term(me->elements + offset);
 }
 
-/* Local Variables:	*/
-/* mode: c		*/
-/* End:			*/
+/* Local Variables:     */
+/* mode: c              */
+/* End:                 */

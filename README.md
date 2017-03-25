@@ -14,11 +14,8 @@ this database file, then informations on the correct option will disappear.
 Thanks
 ------
 
-Thanks bear protocol written by Laszlo Nagy. `cmdrecplay` uses bear protocol.
-Bear's approach is system call hacking by `LD_PRELOAD`,
-and `cmdrecplay` uses its approach too.
-Bear uses the JSON compilation database, but `cmdrecplay` uses the sqlite3 database.
-For more detail, see https://github.com/rizsotto/Bear .
+Thanks bear protocol written by Laszlo Nagy.
+Old `cmdrecplay` used bear protocol, but new `cmdrecplay` does not use it !!
 
 How to build
 ------------
@@ -61,14 +58,30 @@ How to use
 After installation, append the following line in your emacs startup file:
 
     (require 'cmdplay)
+    (add-hook 'c-mode-common-hook 'cmdplay-clang-set-cflags)
+
+To associate with the `compile' command, write as follows too.
+
+    (setq compile-command "LANG=C cmdrec -- make -k ")
+    (advice-add 'compile :around #'cmdplay-clang-advice-around-compile)
+    (advice-add 'recompile :around #'cmdplay-clang-advice-around-compile)
 
 First, per your project:
 
     cd <your_project_directory_which_contains_your_makefile>
     cmdrec -- make
 
+If your project is cmake, you should do as follows instead:
+
+    cd <your_project_directory_which_contains_your_CMakeLists.txt>
+    mkdir build
+    cd build
+    cmdrec -- sh -c "cmake ..; make all"
+
 The `--` separates the parameters from the build command. The output sqlite3 file
 `~/.cmdrec.db` found in your home directory.
+
+
 For more options, you can check by passing `-h` parameter to `cmdrec` or `cmdplay` commands.
 
 From now on, you can edit your project's C/C++ source files by emacs flycheck, without specifying include pathes or macro defines explicitly.

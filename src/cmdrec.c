@@ -1,32 +1,12 @@
 /*
  * Project: cmdrecplay
- * Version: 1.0
- * Copyright: (C) 2014-2016 Dr.Sc.KAWAMOTO,Takuji (Ext)
+ * Version: 1.1
+ * Copyright: (C) 2014-2017 Dr.Sc.KAWAMOTO,Takuji (Ext)
  * Create: 2014/05/04 13:43:35 JST
- */
-/*  Copyright (C) 2012-2014 by László Nagy
-    This file is part of Bear.
-    This file is part of Cmdrec/Cmdplay.
-
-    Bear is a tool to generate compilation database for clang tooling.
-
-    Bear is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Bear is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include "config.h"
 #include "debug.h"
-#include "protocol.h"
 #include "RecPattern.h"
 #include "RecDatabase.h"
 
@@ -42,9 +22,7 @@
 typedef struct cmdrec_commands_t
 {
     char const * config_file;
-    char const * libcmdrp_file;
-    char const * socket_dir;
-    char const * socket_file;
+    char const * path_contents;
     char * const * unprocessed_argv;
     int verbose;
 } cmdrec_commands_t;
@@ -56,13 +34,8 @@ static volatile int      child_status = EXIT_FAILURE;
 // forward declare the used methods
 static void mask_all_signals(int command);
 static void install_signal_handler(int signum);
-static void collect_messages(char const * socket, RecPattern_s * pattern, int sync_fd);
-static void set_environment(char const * key, char const * value);
-static void prepare_socket_file(cmdrec_commands_t *);
-static void teardown_socket_file(cmdrec_commands_t *);
-static void release_commands(cmdrec_commands_t *);
-static void notify_child(int fd);
-static void wait_for_parent(int fd);
+static void notify_to_child(int fd);
+static void observed_by_parent(int fd);
 static void parse(int argc, char * const argv[], cmdrec_commands_t * commands);
 
 static void print_version();
@@ -70,53 +43,58 @@ static void print_usage(char const * const name);
 
 static RecPattern_s* cmdrec_init(const char* config_file);
 static void cmdrec_term(RecPattern_s* rec_pattern);
-static void bear_message_to_parameter_set(bear_message_t* msg,
-                                          RecPattern_s* rec_pattern,
-                                          ParameterSet_s* parameter_set);
+static cmdrec_commands_t commands = {
+  .config_file = DEFAULT_CMDREC_CONFIG_FILE,
+  .path_contents = "",
+  .unprocessed_argv = 0,
+  .verbose = 0
+};
 
 int main(int argc, char * const argv[])
 {
-  cmdrec_commands_t commands = {
-    .config_file = DEFAULT_CMDREC_CONFIG_FILE,
-    .libcmdrp_file = DEFAULT_PRELOAD_FILE,
-    .socket_dir = 0,
-    .socket_file = 0,
-    .unprocessed_argv = 0,
-    .verbose = 0
-  };
+  const char* env = getenv("PATH");
   int sync_fd[2];
 
+  if (!env)
+    {
+      perror("cmdrec: getenv");
+      exit(EXIT_FAILURE);
+    }
+  commands.path_contents = env;
   parse(argc, argv, &commands);
   RecPattern_s * const pattern = cmdrec_init(commands.config_file);
-  prepare_socket_file(&commands);
+  rec_pattern_setup_for_cmdskin(pattern, commands.path_contents);
+  if (commands.verbose)
+    rec_pattern_print(pattern);
   // set up sync pipe
-  if (-1 == pipe(sync_fd))
+  if (pipe(sync_fd) < 0)
     {
       perror("cmdrec: pipe");
       exit(EXIT_FAILURE);
     }
   // fork
   child_pid = fork();
-  if (-1 == child_pid)
+  if (child_pid < 0)
     {
       perror("cmdrec: fork");
       exit(EXIT_FAILURE);
     }
-  else if (0 == child_pid)
+  else if (child_pid == 0)
     {
       // child process
       close(sync_fd[1]);
-      wait_for_parent(sync_fd[0]);
-      set_environment(ENV_PRELOAD, commands.libcmdrp_file);
-      set_environment(ENV_OUTPUT, commands.socket_file);
-#ifdef ENV_FLAT
-      set_environment(ENV_FLAT, "YES");
-#endif
-      if (-1 == execvp(*commands.unprocessed_argv, commands.unprocessed_argv))
+      if (setenv("CMDSKIN_CONFIG_FILE", commands.config_file, 1) < 0)
+        {
+          perror("cmdrec: setenv");
+          exit(EXIT_FAILURE);
+        }
+      observed_by_parent(sync_fd[0]);
+      if (execvp(*commands.unprocessed_argv, commands.unprocessed_argv) < 0)
         {
           perror("cmdrec: execvp");
           exit(EXIT_FAILURE);
         }
+      exit(EXIT_FAILURE);
     }
   else
     {
@@ -127,97 +105,19 @@ int main(int argc, char * const argv[])
       close(fileno(stdin));
       close(fileno(stdout));
       close(sync_fd[0]);
-      collect_messages(commands.socket_file, pattern, sync_fd[1]);
-      teardown_socket_file(&commands);
-    }
-  if (commands.verbose)
-    rec_pattern_print(pattern);
-  cmdrec_term(pattern);
-  release_commands(&commands);
-  return child_status;
-}
-
-static void collect_messages(char const * socket_file, RecPattern_s * pattern,
-                             int sync_fd)
-{
-  int s = bear_create_unix_socket(socket_file);
-  notify_child(sync_fd);
-  // receive messages
-  bear_message_t msg;
-  mask_all_signals(SIG_UNBLOCK);
-  while ((child_pid) && bear_accept_message(s, &msg))
-    {
-      ParameterSet_s parameter_set;
-      parameterSet_init(&parameter_set);
-      mask_all_signals(SIG_BLOCK);
-      bear_message_to_parameter_set(&msg, pattern, &parameter_set);
-      if (rec_pattern_apply(pattern, &parameter_set) == 0)
-        database_rec(&parameter_set);
-      parameterSet_term(&parameter_set);
-      bear_free_message(&msg);
-      mask_all_signals(SIG_UNBLOCK);
-    }
-  mask_all_signals(SIG_BLOCK);
-  // release resources
-  close(s);
-}
-
-static void set_environment(char const * key, char const * value)
-{
-  if (-1 == setenv(key, value, 1))
-    {
-      perror("cmdrec: setenv");
-      exit(EXIT_FAILURE);
-    }
-}
-
-static void prepare_socket_file(cmdrec_commands_t * commands)
-{
-    // create temporary directory for socket
-  if (0 == commands->socket_file)
-    {
-      char template[] = "/tmp/cmdrec-XXXXXX";
-      char const * temp_dir = mkdtemp(template);
-      if (0 == temp_dir)
+      notify_to_child(sync_fd[1]);
+      while (1)
         {
-          perror("cmdrec: mkdtemp");
-          exit(EXIT_FAILURE);
+          int status;
+          pid_t wait_pid = wait(&status);
+          child_status = status;
+          if (wait_pid == child_pid)
+            break;
         }
-      if (-1 == asprintf((char **)&(commands->socket_file), "%s/socket", temp_dir))
-        {
-          perror("cmdrec: asprintf");
-          exit(EXIT_FAILURE);
-        }
-      commands->socket_dir = strdup(temp_dir);
-      if (0 == commands->socket_dir)
-        {
-          perror("cmdrec: strdup");
-          exit(EXIT_FAILURE);
-        }
-    }
-    // remove old socket file if any
-  if ((-1 == unlink(commands->socket_file)) && (ENOENT != errno))
-    {
-      perror("cmdrec: unlink");
-      exit(EXIT_FAILURE);
-    }
-}
-
-static void teardown_socket_file(cmdrec_commands_t * commands)
-{
-  unlink(commands->socket_file);
-  if (commands->socket_dir)
-    {
-      rmdir(commands->socket_dir);
-    }
-}
-
-static void release_commands(cmdrec_commands_t * commands)
-{
-  if (commands->socket_dir)
-    {
-      free((void *)commands->socket_dir);
-      free((void *)commands->socket_file);
+      printf("cmdrec finished !!\n");
+      //rec_pattern_rm_cmdskin_path();
+      cmdrec_term(pattern);
+      return child_status;
     }
 }
 
@@ -225,18 +125,15 @@ static void parse(int argc, char * const argv[], cmdrec_commands_t * commands)
 {
   // parse command line arguments.
   int opt;
-  while ((opt = getopt(argc, argv, "c:l:s:cexvh?")) != -1)
+  while ((opt = getopt(argc, argv, "c:p:xvh?")) != -1)
     {
       switch (opt)
         {
         case 'c':
           commands->config_file = optarg;
           break;
-        case 'l':
-          commands->libcmdrp_file = optarg;
-          break;
-        case 's':
-          commands->socket_file = optarg;
+        case 'p':
+          commands->path_contents = optarg;
           break;
         case 'x':
           commands->verbose = 1;
@@ -285,17 +182,17 @@ static void install_signal_handler(int signum)
   struct sigaction action;
   action.sa_handler = handler;
   action.sa_flags = SA_NOCLDSTOP;
-  if (0 != sigemptyset(&action.sa_mask))
+  if (sigemptyset(&action.sa_mask) < 0)
     {
       perror("cmdrec: sigemptyset");
       exit(EXIT_FAILURE);
     }
-  if (0 != sigaddset(&action.sa_mask, signum))
+  if (sigaddset(&action.sa_mask, signum) < 0)
     {
       perror("cmdrec: sigaddset");
       exit(EXIT_FAILURE);
     }
-  if (0 != sigaction(signum, &action, NULL))
+  if (sigaction(signum, &action, NULL) < 0)
     {
       perror("cmdrec: sigaction");
       exit(EXIT_FAILURE);
@@ -305,21 +202,21 @@ static void install_signal_handler(int signum)
 static void mask_all_signals(int command)
 {
   sigset_t signal_mask;
-  if (0 != sigfillset(&signal_mask))
+  if (sigfillset(&signal_mask) < 0)
     {
       perror("cmdrec: sigfillset");
       exit(EXIT_FAILURE);
     }
-  if (0 != sigprocmask(command, &signal_mask, 0))
+  if (sigprocmask(command, &signal_mask, 0) < 0)
     {
       perror("cmdrec: sigprocmask");
       exit(EXIT_FAILURE);
     }
 }
 
-static void notify_child(int fd)
+static void notify_to_child(int fd)
 {
-  if (-1 == write(fd, "ready", 5))
+  if (write(fd, "ready", 5) < 0)
     {
       perror("cmdrec: write");
       exit(EXIT_FAILURE);
@@ -327,10 +224,10 @@ static void notify_child(int fd)
   close(fd);
 }
 
-static void wait_for_parent(int fd)
+static void observed_by_parent(int fd)
 {
   char buffer[5];
-  if (-1 == read(fd, buffer, sizeof(buffer)))
+  if (read(fd, buffer, sizeof(buffer)) < 0)
     {
       perror("cmdrec: read");
       exit(EXIT_FAILURE);
@@ -341,14 +238,12 @@ static void wait_for_parent(int fd)
 static void print_version()
 {
   fprintf(stdout,
-          "Bear %s\n"
-          "Copyright (C) 2012-2014 by László Nagy\n"
           "Cmdrec %s\n"
-          "Copyright (C) 2014-2016 by Dr.Sc.KAWAMOTO,Takuji (Ext)\n"
-          "This is free software; see the source for copying conditions. "
+          "Copyright (C) 2014-2017 by Dr.Sc.KAWAMOTO,Takuji (Ext)\n"
+          "This is free software; see the source for copying conditions.\n"
           "There is NO warranty; not even for MERCHANTABILITY or FITNESS "
           "FOR A PARTICULAR PURPOSE.\n",
-          BEAR_VERSION, CMDRECPLAY_VERSION);
+          CMDRECPLAY_VERSION);
 }
 
 static void print_usage(char const * const name)
@@ -358,8 +253,7 @@ static void print_usage(char const * const name)
           "\n"
           "options:\n"
           "  -c config         config file (default: %s)\n"
-          "  -l libcmdpreload  library location (default: %s)\n"
-          "  -s socket         multiplexing socket (default: randomly generated)\n"
+          "  -p path           PATH value for command search (default: %s)\n"
           "  -x                verbose pattern dump at the end (default: disabled)\n"
           "  -v                print %s version and exit\n"
           "  -h                print this message\n"
@@ -367,8 +261,8 @@ static void print_usage(char const * const name)
           "exit status: EXIT_FAILURE on any internal problem,\n"
           "otherwise same as the build command exit status.\n",
           name,
-          DEFAULT_CMDREC_CONFIG_FILE,
-          DEFAULT_PRELOAD_FILE,
+          commands.config_file,
+          commands.path_contents,
           name);
 }
 
@@ -390,30 +284,6 @@ static void cmdrec_term(RecPattern_s* rec_pattern)
   rec_pattern_term(rec_pattern);
 }
 
-static void bear_message_to_parameter_set(bear_message_t* msg,
-                                          RecPattern_s* rec_pattern,
-                                          ParameterSet_s* parameter_set)
-{
-  char work[100];
-  Argv_s argv;
-  sprintf(work, "%d", msg->pid);
-  parameterSet_set_by_copy_string(parameter_set, PARAMETER_TYPE_PID, work);
-  sprintf(work, "%d", msg->ppid);
-  parameterSet_set_by_copy_string(parameter_set, PARAMETER_TYPE_PPID, work);
-  parameterSet_set_by_copy_string(parameter_set, PARAMETER_TYPE_FUNCTION, msg->fun);
-#if !defined(NDEBUG)
-#if DEBUG_LEVEL >= 1
-  fprintf(stderr, "cwd = `%s'\n", msg->cwd);
-  for (int offset = 0; msg->cmd[offset]; ++offset)
-    fprintf(stderr, "argv[%d] = %s\n", offset, msg->cmd[offset]);
-#endif
-#endif
-  parameterSet_set_by_copy_as_realpath(parameter_set, PARAMETER_TYPE_RECCWD, msg->cwd);
-  parameterSet_set_by_copy_string(parameter_set, PARAMETER_TYPE_RECCMD, msg->cmd[0]);
-  argv.argv = (char**)(msg->cmd + 1);
-  parameterSet_set_argv_value(parameter_set, PARAMETER_TYPE_RECARGS, &argv);
-}
-
-/* Local Variables:	*/
-/* mode: c		*/
-/* End:			*/
+/* Local Variables:     */
+/* mode: c              */
+/* End:                 */
