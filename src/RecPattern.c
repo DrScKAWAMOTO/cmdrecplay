@@ -68,10 +68,9 @@ int rec_pattern_apply(const RecPattern_s* me, ParameterSet_s* parameter_set)
           mli.matched_lines[strlen(mli.matched_lines) - 1] = '\0';
           parameterSet_set_by_copy_as_realpath(parameter_set, PARAMETER_TYPE_RECFILE,
                                                mli.matched_lines);
-          parameterSet_set_string_value(parameter_set, PARAMETER_TYPE_RECARGS,
-                                        mli.unmatched_lines);
-          mli.matched_lines = NULL;
-          mli.unmatched_lines = NULL;
+          parameterSet_set_by_copy_string(parameter_set, PARAMETER_TYPE_RECARGS,
+                                          mli.unmatched_lines);
+          match_lines_term(&mli);
         }
       else
         {
@@ -86,9 +85,8 @@ int rec_pattern_apply(const RecPattern_s* me, ParameterSet_s* parameter_set)
           mli.unmatched_lines[strlen(mli.unmatched_lines) - 1] = '\0';
           parameterSet_set_by_copy_as_realpath(parameter_set, PARAMETER_TYPE_RECFILE,
                                                mli.unmatched_lines);
-          parameterSet_set_string_value(parameter_set, PARAMETER_TYPE_RECARGS,
-                                        mli.matched_lines);
-          mli.unmatched_lines = NULL;
+          parameterSet_set_by_copy_string(parameter_set, PARAMETER_TYPE_RECARGS,
+                                          mli.matched_lines);
           match_lines_term(&mli);
         }
       else
@@ -161,7 +159,8 @@ static void purge_cmdskin_path(const char* home_env)
         }
       if (dire_p == NULL)
         break;
-      if (((dire.d_type & DT_DIR) == DT_DIR) && (dire.d_namlen >= 10) &&
+      int namlen = strlen(dire.d_name);
+      if (((dire.d_type & DT_DIR) == DT_DIR) && (namlen >= 10) &&
           (strncmp(dire.d_name, ".cmdskin.", 9) == 0))
         {
           pid_t pid = 0;
@@ -222,78 +221,92 @@ static void purge_cmdskin_path(const char* home_env)
 }
 
 static void make_cmdskin_link(const RecPattern_s* me, const char* path_env,
-                              const char* home_env)
+                              const char* home_env, const char* cmdskin_path)
 {
   pid_t me_pid = getpid();
+  char cmdskin_dir[LENGTH_OF_BUFFER];
   char command_buffer[LENGTH_OF_BUFFER];
-  sprintf(command_buffer, "mkdir -p %s/.cmdskin.%d", home_env, me_pid);
-  system(command_buffer);
-  const char* path_ptr = path_env;
-  while (*path_ptr != '\0')
+  struct stat sb;
+  strcpy(cmdskin_dir, cmdskin_path);
+  if (cmdskin_dir[0] == '\0')
+    sprintf(cmdskin_dir, "%s/.cmdskin.%d", home_env, me_pid);
+  int result = stat(cmdskin_dir, &sb);
+  if (result == 0)
     {
-      char each_path[LENGTH_OF_PATH_BUFFER];
-      char* each_ptr = each_path;
-      struct stat sb;
-      while ((*path_ptr != '\0') && (*path_ptr != ':'))
-        *each_ptr++ = *path_ptr++;
-      *each_ptr = '\0';
-      if (*path_ptr == ':')
-        ++path_ptr;
-      if (stat(each_path, &sb) != 0)
-        continue;
-      if ((sb.st_mode & S_IFDIR) != S_IFDIR)
-        continue;
-      DIR* dirp = opendir(each_path);
-      if (!dirp)
+      if ((sb.st_mode & S_IFDIR) == 0)
         {
-          fprintf(stderr, "Cannot alloc memory.\n");
+          fprintf(stderr, "Cannot mkdir(%s).\n", cmdskin_dir);
           exit(EXIT_FAILURE);
         }
-      while (1)
+    }
+  else
+    {
+      sprintf(command_buffer, "mkdir -p %s", cmdskin_dir);
+      system(command_buffer);
+      const char* path_ptr = path_env;
+      while (*path_ptr != '\0')
         {
-          struct dirent dire;
-          struct dirent* dire_p;
-          if (readdir_r(dirp, &dire, &dire_p))
+          char each_path[LENGTH_OF_PATH_BUFFER];
+          char* each_ptr = each_path;
+          while ((*path_ptr != '\0') && (*path_ptr != ':'))
+            *each_ptr++ = *path_ptr++;
+          *each_ptr = '\0';
+          if (*path_ptr == ':')
+            ++path_ptr;
+          if (stat(each_path, &sb) != 0)
+            continue;
+          if ((sb.st_mode & S_IFDIR) != S_IFDIR)
+            continue;
+          DIR* dirp = opendir(each_path);
+          if (!dirp)
             {
-              fprintf(stderr, "Cannot readdir_r(2).\n");
+              fprintf(stderr, "Cannot alloc memory.\n");
               exit(EXIT_FAILURE);
             }
-          if (dire_p == NULL)
-            break;
-          if ((dire.d_type & DT_REG) == DT_REG)
+          while (1)
             {
-              /* recmatch: を適用する */
-              const char* text = dire.d_name;
-              unsigned int start_pos = 0;
-              unsigned int end_pos = strlen(text);
-              MatchLocation_s mlo;
-              int result = regexp_search(&mlo, me->recmatch.elements[0].operand,
-                                         text, start_pos, end_pos);
-              if (result == 0)
+              struct dirent dire;
+              struct dirent* dire_p;
+              if (readdir_r(dirp, &dire, &dire_p))
                 {
-                  struct stat sb;
-                  sprintf(command_buffer, "%s/.cmdskin.%d/%s",
-                          home_env, me_pid, dire.d_name);
-                  if ((lstat(command_buffer, &sb) == 0) &&
-                      ((sb.st_mode & S_IFLNK) == S_IFLNK))
-                    continue;
-                  sprintf(command_buffer, "ln -s %s/cmdskin %s/.cmdskin.%d/%s",
-                          INSTALL_FULL_SBINDIR, home_env, me_pid, dire.d_name);
-                  system(command_buffer);
+                  fprintf(stderr, "Cannot readdir_r(2).\n");
+                  exit(EXIT_FAILURE);
+                }
+              if (dire_p == NULL)
+                break;
+              if ((dire.d_type & DT_REG) == DT_REG)
+                {
+                  /* recmatch: を適用する */
+                  const char* text = dire.d_name;
+                  unsigned int start_pos = 0;
+                  unsigned int end_pos = strlen(text);
+                  MatchLocation_s mlo;
+                  int result = regexp_search(&mlo, me->recmatch.elements[0].operand,
+                                             text, start_pos, end_pos);
+                  if (result == 0)
+                    {
+                      struct stat sb;
+                      sprintf(command_buffer, "%s/%s", cmdskin_dir, dire.d_name);
+                      if ((lstat(command_buffer, &sb) == 0) &&
+                          ((sb.st_mode & S_IFLNK) == S_IFLNK))
+                        continue;
+                      sprintf(command_buffer, "ln -s %s/cmdskin %s/%s",
+                              INSTALL_FULL_SBINDIR, cmdskin_dir, dire.d_name);
+                      system(command_buffer);
+                    }
                 }
             }
+          closedir(dirp);
         }
-      closedir(dirp);
     }
-  sprintf(command_buffer, "%s/.cmdskin.%d", home_env, me_pid);
-  int length = strlen(path_env) + 1 + strlen(command_buffer);
+  int length = strlen(path_env) + 1 + strlen(cmdskin_dir);
   char* new_path_env = malloc(length + 1);
   if (!new_path_env)
     {
       fprintf(stderr, "Cannot alloc memory.\n");
       exit(EXIT_FAILURE);
     }
-  sprintf(new_path_env, "%s:%s", command_buffer, path_env);
+  sprintf(new_path_env, "%s:%s", cmdskin_dir, path_env);
   if (setenv("PATH", new_path_env, 1) < 0)
     {
       fprintf(stderr, "Cannot setenv.\n");
@@ -302,7 +315,8 @@ static void make_cmdskin_link(const RecPattern_s* me, const char* path_env,
   free(new_path_env);
 }
 
-void rec_pattern_setup_for_cmdskin(const RecPattern_s* me, const char* path_env)
+void rec_pattern_setup_for_cmdskin(const RecPattern_s* me, const char* path_env,
+                                   const char* cmdskin_path)
 {
   char* home_env = getenv("HOME");
   if (!home_env)
@@ -320,8 +334,8 @@ void rec_pattern_setup_for_cmdskin(const RecPattern_s* me, const char* path_env)
   assert(me->recmatch.elements[0].parameter_type == PARAMETER_TYPE_RECCMD);
 
   purge_cmdskin_path(home_env);
-  make_cmdskin_link(me, path_env, home_env);
-  free(home_env);
+  make_cmdskin_link(me, path_env, home_env, cmdskin_path);
+  //free(home_env);
 }
 
 void rec_pattern_rm_cmdskin_path()
@@ -336,7 +350,6 @@ void rec_pattern_rm_cmdskin_path()
   char command_buffer[LENGTH_OF_BUFFER];
   sprintf(command_buffer, "rm -rf %s/.cmdskin.%d", home_env, me_pid);
   system(command_buffer);
-  free(home_env);
 }
 
 /* Local Variables:     */

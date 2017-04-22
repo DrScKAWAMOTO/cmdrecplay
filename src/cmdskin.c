@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include <limits.h>
 #include <sys/wait.h>
 #include <signal.h>
 
@@ -48,7 +49,7 @@ int main(int argc, char * argv[])
 #endif
 #endif
   argv[0] = file;
-  if (argc == 1)
+  if ((argc == 1) || ((argc == 2) && (argv[1][0] == '-')))
     {
       print_version();
       exit(EXIT_FAILURE);
@@ -69,8 +70,15 @@ int main(int argc, char * argv[])
   Argv_s argvs;
   argv_init(&argvs, argv + 1);
   parameterSet_set_argv_value(&parameter_set, PARAMETER_TYPE_RECARGS, &argvs);
+  char command_buffer[PATH_MAX + 20];
+  command_buffer[0] = '\0';
   if (rec_pattern_apply(pattern, &parameter_set) == 0)
-    database_rec(&parameter_set);
+    {
+      database_rec(&parameter_set);
+      const char* recfile = parameterSet_refer_string_value(&parameter_set,
+                                                            PARAMETER_TYPE_RECFILE);
+      sprintf(command_buffer, "srcinc -q %s", recfile);
+    }
   parameterSet_term(&parameter_set);
   argv_term(&argvs);
   char* path = getenv("PATH");
@@ -111,6 +119,8 @@ int main(int argc, char * argv[])
     }
 #endif
 #endif
+  if (command_buffer[0])
+    system(command_buffer);
   if (execvp(file, argv) < 0)
     {
       perror("cmdskin: execvp");
@@ -121,7 +131,7 @@ int main(int argc, char * argv[])
 
 static void print_version()
 {
-  fprintf(stdout,
+  fprintf(stderr,
           "Cmdskin %s\n"
           "Copyright (C) 2014-2017 by Dr.Sc.KAWAMOTO,Takuji (Ext)\n"
           "This is free software; see the source for copying conditions.\n"

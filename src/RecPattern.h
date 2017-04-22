@@ -22,7 +22,8 @@ extern void rec_pattern_term(RecPattern_s* me);
 extern void rec_pattern_read_config(RecPattern_s* me, ConfigFile_s* inpfile);
 extern int rec_pattern_apply(const RecPattern_s* me, ParameterSet_s* parameter_set);
 extern void rec_pattern_print(RecPattern_s* me);
-extern void rec_pattern_setup_for_cmdskin(const RecPattern_s* me, const char* path_env);
+extern void rec_pattern_setup_for_cmdskin(const RecPattern_s* me, const char* path_env,
+                                          const char* cmdskin_path);
 extern void rec_pattern_rm_cmdskin_path(void);
 
 #endif /* __RECPATTERN_H__ */

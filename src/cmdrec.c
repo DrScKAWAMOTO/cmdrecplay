@@ -23,6 +23,7 @@ typedef struct cmdrec_commands_t
 {
     char const * config_file;
     char const * path_contents;
+    char const * cmdskin_path;
     char * const * unprocessed_argv;
     int verbose;
 } cmdrec_commands_t;
@@ -46,6 +47,7 @@ static void cmdrec_term(RecPattern_s* rec_pattern);
 static cmdrec_commands_t commands = {
   .config_file = DEFAULT_CMDREC_CONFIG_FILE,
   .path_contents = "",
+  .cmdskin_path = "",
   .unprocessed_argv = 0,
   .verbose = 0
 };
@@ -63,7 +65,8 @@ int main(int argc, char * const argv[])
   commands.path_contents = env;
   parse(argc, argv, &commands);
   RecPattern_s * const pattern = cmdrec_init(commands.config_file);
-  rec_pattern_setup_for_cmdskin(pattern, commands.path_contents);
+  rec_pattern_setup_for_cmdskin(pattern, commands.path_contents,
+                                commands.cmdskin_path);
   if (commands.verbose)
     rec_pattern_print(pattern);
   // set up sync pipe
@@ -82,6 +85,7 @@ int main(int argc, char * const argv[])
   else if (child_pid == 0)
     {
       // child process
+      cmdrec_term(pattern);
       close(sync_fd[1]);
       if (setenv("CMDSKIN_CONFIG_FILE", commands.config_file, 1) < 0)
         {
@@ -94,6 +98,7 @@ int main(int argc, char * const argv[])
           perror("cmdrec: execvp");
           exit(EXIT_FAILURE);
         }
+      fprintf(stderr, "execvp() returned with non error !!\n");
       exit(EXIT_FAILURE);
     }
   else
@@ -115,7 +120,7 @@ int main(int argc, char * const argv[])
             break;
         }
       printf("cmdrec finished !!\n");
-      //rec_pattern_rm_cmdskin_path();
+      rec_pattern_rm_cmdskin_path();
       cmdrec_term(pattern);
       return child_status;
     }
@@ -125,7 +130,7 @@ static void parse(int argc, char * const argv[], cmdrec_commands_t * commands)
 {
   // parse command line arguments.
   int opt;
-  while ((opt = getopt(argc, argv, "c:p:xvh?")) != -1)
+  while ((opt = getopt(argc, argv, "c:p:s:xvh?")) != -1)
     {
       switch (opt)
         {
@@ -134,6 +139,9 @@ static void parse(int argc, char * const argv[], cmdrec_commands_t * commands)
           break;
         case 'p':
           commands->path_contents = optarg;
+          break;
+        case 's':
+          commands->cmdskin_path = optarg;
           break;
         case 'x':
           commands->verbose = 1;
@@ -252,18 +260,20 @@ static void print_usage(char const * const name)
           "Usage: %s [options] -- <build command>\n"
           "\n"
           "options:\n"
-          "  -c config         config file (default: %s)\n"
-          "  -p path           PATH value for command search (default: %s)\n"
-          "  -x                verbose pattern dump at the end (default: disabled)\n"
-          "  -v                print %s version and exit\n"
-          "  -h                print this message\n"
+          "  -c config         config file (default: %s),\n"
+          "  -p path           PATH value for command search (default: %s),\n"
+          "  -s cmdskinpath    cmdskin path for splitting command execution (default: none),\n"
+          "  -x                verbose pattern dump at the end (default: disabled),\n"
+          "  -v                print %s version and exit,\n"
+          "  -h                print this message.\n"
           "\n"
-          "exit status: EXIT_FAILURE on any internal problem,\n"
+          "Exit status: %d on any internal problem,\n"
           "otherwise same as the build command exit status.\n",
           name,
           commands.config_file,
           commands.path_contents,
-          name);
+          name,
+          EXIT_FAILURE);
 }
 
 static RecPattern_s* cmdrec_init(const char* config_file)
@@ -282,6 +292,7 @@ static RecPattern_s* cmdrec_init(const char* config_file)
 static void cmdrec_term(RecPattern_s* rec_pattern)
 {
   rec_pattern_term(rec_pattern);
+  free(rec_pattern);
 }
 
 /* Local Variables:     */

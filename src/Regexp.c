@@ -30,10 +30,20 @@ static void regexp_init(regexp_s* internal, const char* pattern)
       fprintf(stderr, "onig_new() error (%d)\n", ret);
       exit(EXIT_FAILURE);
     }
+#if !defined(NDEBUG)
+#if DEBUG_LEVEL >= 4
+  fprintf(stderr, "onig_new() called %p\n", internal->reg);
+#endif
+#endif
 }
 
 static void regexp_term(regexp_s* internal)
 {
+#if !defined(NDEBUG)
+#if DEBUG_LEVEL >= 4
+  fprintf(stderr, "onig_free() called %p\n", internal->reg);
+#endif
+#endif
   onig_free(internal->reg);
 }
 
@@ -134,8 +144,18 @@ void regexp_search_all(MatchLines_s* result, const char* pattern, const char* te
   assert(text);
   end_pos = strlen(text);
   unmatched_ptr = malloc(end_pos + 1);
+#if !defined(NDEBUG)
+#if DEBUG_LEVEL >= 4
+  fprintf(stderr, "MatchLines_new() called %p\n", unmatched_ptr);
+#endif
+#endif
   result->unmatched_lines = unmatched_ptr;
   matched_ptr = malloc(end_pos + 1);
+#if !defined(NDEBUG)
+#if DEBUG_LEVEL >= 4
+  fprintf(stderr, "MatchLines_new() called %p\n", matched_ptr);
+#endif
+#endif
   result->matched_lines = matched_ptr;
   regexp_init(&internal, pattern);
   while (1)
@@ -174,10 +194,24 @@ void regexp_search_all(MatchLines_s* result, const char* pattern, const char* te
 void match_lines_term(MatchLines_s* me)
 {
   if (me->unmatched_lines)
-    free(me->unmatched_lines);
+    {
+#if !defined(NDEBUG)
+#if DEBUG_LEVEL >= 4
+      fprintf(stderr, "MatchLines_free() 4 called %p\n", me->unmatched_lines);
+#endif
+#endif
+      free(me->unmatched_lines);
+    }
   me->unmatched_lines = NULL;
   if (me->matched_lines)
-    free(me->matched_lines);
+    {
+#if !defined(NDEBUG)
+#if DEBUG_LEVEL >= 4
+      fprintf(stderr, "MatchLines_free() 5 called %p\n", me->matched_lines);
+#endif
+#endif
+      free(me->matched_lines);
+    }
   me->matched_lines = NULL;
 }
 

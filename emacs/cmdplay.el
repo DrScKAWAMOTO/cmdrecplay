@@ -17,17 +17,21 @@
 ;;; 02139, USA.
 ;;;
 
-;;; After installation, append the following line in your emacs startup file:
+;;; After installation, append the following lines in your emacs startup file:
 ;;;
+;;;     (setq cmdplay-use-flycheck t)
+;;;     (setq cmdplay-use-clang-async t)
+;;;     (setq cmdplay-use-ifendif t)
 ;;;     (require 'cmdplay)
-;;;     (add-hook 'c-mode-common-hook 'cmdplay-clang-set-cflags)
 ;;;
-;;; To associate with the `compile' command, write as follows too.
+;;; To associate with the `M-x compile` command, write follows instead.
 ;;;
+;;;     (setq cmdplay-use-flycheck t)
+;;;     (setq cmdplay-use-clang-async t)
+;;;     (setq cmdplay-use-ifendif t)
+;;;     (setq cmdplay-use-compile t)
+;;;     (setq cmdplay-compile-command "LANG=C cmdrec -- make -k ")
 ;;;     (require 'cmdplay)
-;;;     (setq compile-command "LANG=C cmdrec -- make -k ")
-;;;     (advice-add 'compile :around #'cmdplay-clang-advice-around-compile)
-;;;     (advice-add 'recompile :around #'cmdplay-clang-advice-around-compile)
 ;;;
 ;;; First, per your project:
 ;;;
@@ -39,105 +43,70 @@
 ;;;     cd <your_project_directory_which_contains_your_CMakeLists.txt>
 ;;;     mkdir build
 ;;;     cd build
-;;;     cmdrec -- sh -c "cmake ..; make all"
+;;;    cmdrec -s ~/cmdskin -- cmake ..
+;;;    cmdrec -s ~/cmdskin -- make all
 ;;;
-;;; The `--` separates the parameters from the build command. The output sqlite3 file
-;;; `~/.cmdrec.db` found in your home directory.
-
+;;; The `--` separates the options from the build command. You will find the output
+;;; sqlite3 file `~/.cmdrec.db` in your home directory.
 ;;;
-;;; flycheck related
-;;;      define flycheck checkers
-;;;          c/c++-cmdplay-clang
-;;;          c/c++-cmdplay-cppcheck
+;;; You may specify `-s` option, in this case it's directory is used for `cmdskin`
+;;; searching PATH. If this directory already exists, `cmdrec` shall not update it's
+;;; contents.
+;;; So delete the directory when the compiler options were not recorded correctly.
 ;;;
-
-(require 'flycheck)
-
-(flycheck-define-checker c/c++-cmdplay-clang
-  "A C/C++ syntax checker using Clang and cmdplay.
-
-See URL `http://clang.llvm.org/' and `https://github.com/DrScKAWAMOTO/cmdrecplay'."
-  :command ("cmdplay"
-            "-f" source-original
-            "--"
-            (eval (pcase major-mode (`c++-mode "clang++-on-the-fly-check")
-                         (`c-mode "clang-on-the-fly-check")))
-            "-x" (eval (pcase major-mode (`c++-mode "c++") (`c-mode "c")))
-            ;; We must stay in the same directory, to properly resolve #include
-            ;; with quotes
-            source-inplace)
-  :error-patterns
-  ((error line-start
-          (message "In file included from") " " (file-name) ":" line ":"
-          line-end)
-   (info line-start (file-name) ":" line ":" column
-            ": note: " (message) line-end)
-   (warning line-start (file-name) ":" line ":" column
-            ": warning: " (message) line-end)
-   (error line-start (file-name) ":" line ":" column
-          ": " (or "fatal error" "error") ": " (message) line-end))
-  :modes (c-mode c++-mode)
-  :next-checkers ((warnings-only . c/c++-cmdplay-cppcheck)))
-
-(flycheck-define-checker c/c++-cmdplay-cppcheck
-  "A C/C++ checker using cppcheck and cmdplay.
-
-See URL `http://cppcheck.sourceforge.net/' and `https://github.com/DrScKAWAMOTO/cmdrecplay'."
-  :command ("cmdplay"
-            "-f" source-original
-            "--"
-            "cppcheck-on-the-fly-check"
-            ;; We must stay in the same directory, to properly resolve #include
-            ;; with quotes
-            source-inplace)
-  :error-parser flycheck-parse-cppcheck
-  :modes (c-mode c++-mode))
-
-(setq flycheck-checkers (cons 'c/c++-cmdplay-cppcheck flycheck-checkers))
-(setq flycheck-checkers (cons 'c/c++-cmdplay-clang flycheck-checkers))
-(setq flycheck-disabled-checkers (cons 'c/c++-cppcheck flycheck-disabled-checkers))
-(setq flycheck-disabled-checkers (cons 'c/c++-clang flycheck-disabled-checkers))
-
+;;; For more options, you may check by passing `-h` option to `cmdrec` or `cmdplay`
+;;; commands.
 ;;;
-;;; auto-complete related
-;;;      define function of automatic setting ac-clang-cflags
+;;; From now on, you can edit your project's C/C++ source files by emacs, without
+;;; specifying include pathes or macro defines explicitly for flycheck, auto completion,
+;;; and ifendif.
+;;; If your include pathes or macro defines are changed in your makefiles, then you need
+;;; to executing `cmdrec -- make` by `M-x compile` again.
 ;;;
 
-(defun cmdplay-clang-set-cflags-buffer (buffer)
-  "Set `ac-clang-cflags' of BUFFER to new cflags for ac-clang by executing cmdplay."
-  (interactive)
-  (save-excursion
-    (set-buffer buffer)
-    (let* ((arg2 (format "%s" buffer-file-name))
-           (arg1 (cond ((eq major-mode 'c-mode) "clang-completion")
-                       (t "clang++-completion")))
-           (cmd (format "cmdplay -- %s %s" arg1 arg2)))
-      (when buffer-file-name
-        (message (format "execute `%s'" cmd))
-        (setq ac-clang-cflags
-              (split-string
-               (shell-command-to-string cmd)))
-        (ac-clang-update-cmdlineargs)))))
+;;; Setq t if you use flycheck.
+(defvar cmdplay-use-flycheck nil)
+;;; Setq t if you use auto-complete-clang-async.
+(defvar cmdplay-use-clang-async nil)
+;;; Setq t if you use ifendif (gray out C/C++ source lines invalidated by `if direc...).
+(defvar cmdplay-use-ifendif nil)
+;;; Setq t to associate with the `compile' command.
+(defvar cmdplay-use-compile nil)
+;;; Set default compile-command value.
+(defvar cmdplay-compile-command "LANG=C cmdrec -- make -k ")
 
-(defun cmdplay-clang-set-cflags-all-buffers ()
-  "Set `ac-clang-cflags' of all buffers to new cflags for ac-clang by executing cmdplay."
-  (interactive)
-  (mapcar 'cmdplay-clang-set-cflags-buffer (buffer-list)))
+(when cmdplay-use-flycheck (require 'cmdplay-flycheck))
+(when cmdplay-use-clang-async (require 'cmdplay-clang-async))
+(when cmdplay-use-ifendif (require 'cmdplay-ifendif))
 
-(defun cmdplay-clang-set-cflags ()
-  "Set `ac-clang-cflags' to new cflags for ac-clang by executing cmdplay."
-  (interactive)
-  (cmdplay-clang-set-cflags-buffer (current-buffer)))
+(when (or cmdplay-use-clang-async cmdplay-use-ifendif)
+  (defun cmdplay-c-common-hook ()
+    (when cmdplay-use-clang-async (cmdplay-clang-set-cflags))
+    (when cmdplay-use-ifendif (cmdplay-ifendif-mode))
+  )
+  (add-hook 'c-mode-common-hook 'cmdplay-c-common-hook t)  ;; append at the end
+  )
 
-(defun cmdplay-clang-sentinel (process event)
-  (when (string= event "finished\n")
-    (mapcar 'cmdplay-clang-set-cflags-buffer (buffer-list))))
-
-(defun cmdplay-clang-advice-around-compile (f &rest args)
-  "Set `ac-clang-cflags' of all buffers to new cflags for ac-clang by executing cmdplay."
-  (let ((ret (apply f args)))
-    (message "cmdplay-clang-advice-around-compile called")
-    (set-process-sentinel (get-buffer-process ret) 'cmdplay-clang-sentinel)
-    ret))
+(when cmdplay-use-compile
+  (setq compile-command cmdplay-compile-command)
+  (when (or cmdplay-use-clang-async cmdplay-use-ifendif)
+    (defun cmdplay-sentinel (process event)
+      (message "cmdplay-sentinel called")
+      (when (string= event "finished\n")
+        (message "compile finished")
+        (when cmdplay-use-clang-async
+          (mapcar 'cmdplay-clang-set-cflags-buffer (buffer-list)))
+        (when cmdplay-use-ifendif
+          (mapcar 'cmdplay-ifendif-gray-out-invalidated-buffer (buffer-list)))
+        ))
+    (defun cmdplay-advice-around-compile (f &rest args)
+      "Advice function for cmdplay-clang-async and/or cmdplay-ifendif."
+      (let ((ret (apply f args)))
+        (message "cmdplay-advice-around-compile called")
+        (set-process-sentinel (get-buffer-process ret) 'cmdplay-sentinel)
+        ret))
+    (advice-add 'compile :around #'cmdplay-advice-around-compile)
+    (advice-add 'recompile :around #'cmdplay-advice-around-compile)
+    ))
 
 (provide 'cmdplay)

@@ -69,6 +69,7 @@ int main(int argc, char* argv[])
 #endif
   if (chdir(cwd_ptr) < 0)
     {
+      fprintf(stderr, "unknown path %s !!\n", cwd_ptr);
       perror("cmdplay: chdir");
       exit(EXIT_FAILURE);
     }
@@ -104,6 +105,7 @@ static void put_environment(char const * key_equal_value)
   strcpy(work, key_equal_value);
   if (putenv(work) < 0)
     {
+      fprintf(stderr, "putenv(%s)!!\n", work);
       perror("cmdplay: putenv");
       exit(EXIT_FAILURE);
     }
@@ -163,8 +165,8 @@ static void print_version()
 
 static void print_usage(char const * const name)
 {
-  fprintf(stdout,
-          "Usage: %s [options] -- <on-the-fly check/completion command>\n"
+  fprintf(stderr,
+          "Usage: %s [options] -- <flycheck/auto-completion/ifendif command>\n"
           "\n"
           "options:\n"
           "  -c config        config file (default: %s)\n"
@@ -173,11 +175,12 @@ static void print_usage(char const * const name)
           "  -v               print %s version and exit\n"
           "  -h               print this message\n"
           "\n"
-          "exit status: EXIT_FAILURE on any internal problem,\n"
-          "otherwise same as the build command exit status.\n",
+          "exit status: %d on any internal problem,\n"
+          "otherwise same as the flycheck/auto-completion/ifendif command exit status.\n",
           name,
           DEFAULT_CMDPLAY_CONFIG_FILE,
-          name);
+          name,
+          EXIT_FAILURE);
 }
 
 static PlayPatterns_s* cmdplay_init(const char* config_file)

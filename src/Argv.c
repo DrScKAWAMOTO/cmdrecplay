@@ -21,6 +21,7 @@ void argv_init(Argv_s* me, char* argv[])
       me->argv[offset] = malloc(strlen(argv[offset]) + 1);
       strcpy(me->argv[offset], argv[offset]);
     }
+  me->argv[argc] = NULL;
 }
 
 void argv_term(Argv_s* me)

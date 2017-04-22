@@ -6,12 +6,14 @@
  */
 
 #include <string.h>
+#include <limits.h>
 #include <stdlib.h>
 #include <assert.h>
 
 #include "debug.h"
 #include "PlayPatterns.h"
 #include "PlayDatabase.h"
+#include "SrcDatabase.h"
 #include "Regexp.h"
 
 static void play_pattern_init(PlayPattern_s* me)
@@ -159,9 +161,8 @@ static void play_pattern_apply_pre(const PlayPattern_s* me, ParameterSet_s* para
           mli.matched_lines[strlen(mli.matched_lines) - 1] = '\0';
           parameterSet_set_by_copy_as_realpath(parameter_set, PARAMETER_TYPE_PLAYFILE,
                                                mli.matched_lines);
-          parameterSet_set_string_value(parameter_set, PARAMETER_TYPE_PLAYARGS,
-                                        mli.unmatched_lines);
-          mli.unmatched_lines = NULL;
+          parameterSet_set_by_copy_string(parameter_set, PARAMETER_TYPE_PLAYARGS,
+                                          mli.unmatched_lines);
           match_lines_term(&mli);
         }
       else
@@ -197,7 +198,16 @@ static void play_pattern_apply_pre(const PlayPattern_s* me, ParameterSet_s* para
                     parameterSet_refer_string_value(parameter_set,
                                                     PARAMETER_TYPE_PLAYFILE));
     }
-
+  /* optfile が .h .hpp .hxx などであれば srcinc テーブルを検索して置き換える。 */
+  const char* optfile = parameterSet_refer_string_value(parameter_set,
+                                                        PARAMETER_TYPE_OPTFILE);
+  const char* offset = strrchr(optfile, '.');
+  if (offset && ((offset[1] == 'h') || (offset[1] == 'H')))
+    {
+      char buffer[PATH_MAX];
+      if (database_hedto(optfile, buffer) == 1)
+        parameterSet_set_by_copy_string(parameter_set, PARAMETER_TYPE_OPTFILE, buffer);
+    }
   /* playmatch: を適用する */
   assert(me->playmatch.definition_type == DEFINITION_TYPE_PLAYMATCH);
   for (int offset = 0; offset < me->playmatch.number_of_elements; ++offset)
@@ -360,6 +370,11 @@ static void play_pattern_apply_post(const PlayPattern_s* me,
 #endif
 #endif
           required_free = 1;
+#if !defined(NDEBUG)
+#if DEBUG_LEVEL >= 4
+          fprintf(stderr, "MatchLines_free() 1 called %p\n", mli.unmatched_lines);
+#endif
+#endif
           free(mli.unmatched_lines);
           break;
         case OPERATOR_TYPE_PARAMETER_DIDNT_MATCH:
@@ -373,6 +388,11 @@ static void play_pattern_apply_post(const PlayPattern_s* me,
 #endif
 #endif
           required_free = 1;
+#if !defined(NDEBUG)
+#if DEBUG_LEVEL >= 4
+          fprintf(stderr, "MatchLines_free() 2 called %p\n", mli.matched_lines);
+#endif
+#endif
           free(mli.matched_lines);
           break;
         case OPERATOR_TYPE_STRING:
@@ -404,7 +424,14 @@ static void play_pattern_apply_post(const PlayPattern_s* me,
       if (required_add_lf)
         strcat(new_sum, "\n");
       if (required_free)
-        free(found);
+        {
+#if !defined(NDEBUG)
+#if DEBUG_LEVEL >= 4
+          fprintf(stderr, "MatchLines_free() 3 called %p\n", found);
+#endif
+#endif
+          free(found);
+        }
       free(sum);
       sum = new_sum;
     }

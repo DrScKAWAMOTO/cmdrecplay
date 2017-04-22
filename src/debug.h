@@ -13,7 +13,7 @@
 // #define DEBUG_LEVEL 1 // 録再実行時のパラメータ表示
 // #define DEBUG_LEVEL 2 // 上記＋パターン決定過程のログ
 #define DEBUG_LEVEL 3 // 上記＋データベース検索ログ
-// #define DEBUG_LEVEL 4
+// #define DEBUG_LEVEL 4 // 上記＋メモリデバッグログ
 
 #endif
 

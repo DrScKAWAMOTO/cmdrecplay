@@ -35,7 +35,7 @@ static int callback(void *arg, int argc, char **argv, char **column)
 #endif
       if (strcmp(column[offset], "file") == 0)
         {
-          const char* text = 
+          const char* text =
             parameterSet_refer_string_value(paramset, PARAMETER_TYPE_RECFILE);
           assert(strcmp(text, argv[offset]) == 0);
         }
@@ -73,6 +73,7 @@ int database_play(ParameterSet_s* parameter_set)
 #endif
 #endif
   database_sql_exec(db, sql, callback, 0);
+  sqlite3_free(sql);
   database_term(db);
   return count;
 }

@@ -21,10 +21,14 @@ add_executable(cmdplay
     PlayPatterns.c
     Database.c
     PlayDatabase.c
+    SrcDatabase.c
     ParameterSet.c
     Argv.c
     Regexp.c
     cmdplay.c)
+add_executable(cmdsrc
+    Database.c
+    cmdsrc.c)
 add_executable(cmdskin
     ConfigFile.c
     Pattern.c
@@ -35,15 +39,42 @@ add_executable(cmdskin
     Argv.c
     Regexp.c
     cmdskin.c)
+add_executable(ifendif
+    AtExitUnlink.cc
+    Expanded.cc
+    FillTheSkips.cc
+    LineBuffer.cc
+    RegionDetector.cc
+    Source.cc
+    ifendif.cc)
+add_executable(srcinc
+    AtExitUnlink.cc
+    Included.cc
+    FillTheSkips.cc
+    LineBuffer.cc
+    Database.c
+    SrcDatabase.c
+    srcinc.cc)
+include_directories(${LIBCONFIG_INCLUDE_DIRS} ../src)
 include_directories(${LIBCONFIG_INCLUDE_DIRS})
 target_link_libraries(cmdrec ${LIBCONFIG_LIBRARIES} onig sqlite3)
 target_link_libraries(cmdplay ${LIBCONFIG_LIBRARIES} onig sqlite3)
+target_link_libraries(cmdsrc ${LIBCONFIG_LIBRARIES} sqlite3)
 target_link_libraries(cmdskin ${LIBCONFIG_LIBRARIES} onig sqlite3)
+target_link_libraries(srcinc ${LIBCONFIG_LIBRARIES} sqlite3)
+set_target_properties(cmdrec PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+set_target_properties(cmdplay PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+set_target_properties(cmdsrc PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+set_target_properties(cmdskin PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+set_target_properties(ifendif PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+set_target_properties(srcinc PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 include(GNUInstallDirs)
-install(TARGETS cmdrec cmdplay
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+install(TARGETS cmdrec cmdplay cmdsrc ifendif srcinc
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(TARGETS cmdskin
-    RUNTIME DESTINATION ${CMAKE_INSTALL_SBINDIR})
+    RUNTIME DESTINATION ${CMAKE_INSTALL_SBINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 install(FILES cmdrec.conf cmdplay.conf
     DESTINATION ${CMAKE_INSTALL_SYSCONFDIR})

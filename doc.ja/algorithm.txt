@@ -1,0 +1,87 @@
+1) ソースファイルの #if #ifdef #ifndef #else #elif #endif が存在する行を調べる
+ソースファイルの各行は、これらの if ディレクティブによって複数の領域に分断されていると
+考えられる。
+
+例：
+
+--------- test.c 開始 ---------
+/* sample */
+#if defined(DEBUG)
+#define OK
+#else
+int main(int argc,char *argv[])
+{
+  return 0;
+}
+#endif
+/* end */
+--------- test.c 終了 ---------
+
+--------- test.c 開始 ---------
+領域１
+#if defined(DEBUG)
+領域２
+#else
+領域３
+#endif
+領域４
+--------- test.c 終了 ---------
+
+2) ソースコードをコピーして、上記 1) で考えた全ての領域の先頭に
+   マジック行(TK-region-<n>)を挿入したダミーファイルを作成する。
+
+--------- ダミーファイル開始 ---------
+TK-region-1
+/* sample */
+#if defined(DEBUG)
+TK-region-2
+#define OK
+#else
+TK-region-3
+int main(int argc,char *argv[])
+{
+  return 0;
+}
+#endif
+TK-region-4
+/* end */
+--------- ダミーファイル終了 ---------
+
+3) ソースファイルをコンパイルする時のオプション類(-D -f -U など)を使用して、
+   ダミーファイルをプリプロ処理する。
+
+例: DEBUG を定義しないでプリプロ処理した結果
+
+--------- プリプロ処理結果開始 ---------
+TK-region-1
+
+
+
+
+
+TK-region-3
+int main(int argc,char *argv[])
+{
+  return 0;
+}
+
+TK-region-4
+--------- プリプロ処理結果終了 ---------
+
+4) プリプロ結果にどのマジック行が残っているのかを調べて、領域の有効性と、
+   if ディレクティブが存在する行を出力する。
+
+V,2,H,4,V,9,V
+
+を出力する。
+意味は、
+
+2行目と4行目と9行目に、#if #ifdef #ifndef #else #elif #endif が書かれている。
+具体的にどの行にどのディレクティブが書かれているかは問わない。
+先頭行から2行目直前までは有効である。
+2行目直後から4行目直前までは無効である。
+4行目直後から9行目直前までは有効である。
+9行目直後から最終行までは有効である。
+
+5) この出力を元に、H となっている領域を emacs で if-endif.el を使って gray face で表
+   示する。

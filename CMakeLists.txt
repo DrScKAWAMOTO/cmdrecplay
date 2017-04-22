@@ -1,7 +1,7 @@
-cmake_minimum_required(VERSION 3.7.1)
+cmake_minimum_required(VERSION 3.0.0)
 
 project(cmdrecplay)
-set(CMDRECPLAY_VERSION "2.0pre1")
+set(CMDRECPLAY_VERSION "2.0.pre2")
 
 set(CPACK_PACKAGE_NAME "cmdrecplay")
 set(CPACK_PACKAGE_CONTACT "Dr.Sc.KAWAMOTO,Takuji")
@@ -15,7 +15,7 @@ set(CPACK_RPM_PACKAGE_RELEASE "1%{?dist}")
 set(CPACK_RPM_PACKAGE_LICENSE "GPLv3")
 set(CPACK_RPM_PACKAGE_GROUP "Development/Tools")
 set(CPACK_RPM_PACKAGE_URL "http://kawamoto.mydns.jp/")
-set(CPACK_RPM_PACKAGE_DESCRIPTION "Cmdrecplay is a tool for C/C++ checker of emacs flycheck.")
+set(CPACK_RPM_PACKAGE_DESCRIPTION "Cmdrecplay is a tool for C/C++ checker of emacs flycheck, for auto-complete-clang-async, for reporting valid lines by `#if #endif directives`, with C/C++ language source codes.")
 include(CPack)
 
 find_package(PkgConfig)

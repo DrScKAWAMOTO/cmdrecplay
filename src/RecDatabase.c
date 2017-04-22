@@ -45,6 +45,32 @@ void database_rec(const ParameterSet_s* parameter_set)
   database_term(db);
 }
 
+void database_srcinc(const char* header, const char* source)
+{
+  sqlite3 *db;
+  char *sql;
+  /* SQLite データベースを open/create */
+  db = database_init();
+#if USE_TRANSACTION
+  /* BEGIN TRANSACTION */
+  database_sql_exec(db, "BEGIN", 0, 0);
+#endif
+  /* INSERT */
+  sql = sqlite3_mprintf("INSERT INTO srcinc VALUES (%Q,%Q);", header, source);
+#if !defined(NDEBUG)
+#if DEBUG_LEVEL >= 3
+  fprintf(stderr, "sql = `%s'\n", sql);
+#endif
+#endif
+  database_sql_exec(db, sql, 0, 0);
+  sqlite3_free(sql);
+#if USE_TRANSACTION
+  /* COMMIT TRANSACTION */
+  database_sql_exec(db, "COMMIT", 0, 0);
+#endif
+  database_term(db);
+}
+
 /* Local Variables:     */
 /* mode: c              */
 /* End:                 */

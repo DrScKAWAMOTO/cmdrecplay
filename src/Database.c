@@ -13,7 +13,8 @@
 
 #include "Database.h"
 
-#define DATABASE_CREATE_TABLE_SQL "CREATE TABLE cmdrec (file text primary key on conflict replace, cmd text, cwd text, args text, function text, pid text, ppid text);"
+#define DATABASE_CREATE_CMDREC_TABLE_SQL "CREATE TABLE cmdrec (file text primary key on conflict replace, cmd text, cwd text, args text, function text, pid text, ppid text);"
+#define DATABASE_CREATE_SRCINC_TABLE_SQL "CREATE TABLE srcinc (header text primary key on conflict replace, source text);"
 
 sqlite3* database_init(void)
 {
@@ -36,7 +37,8 @@ sqlite3* database_init(void)
       exit(EXIT_FAILURE);
     }
   /* CREATE TABLE(既に存在しておればresult=1) */
-  database_sql_exec(db, DATABASE_CREATE_TABLE_SQL, 0, 1);
+  database_sql_exec(db, DATABASE_CREATE_CMDREC_TABLE_SQL, 0, 1);
+  database_sql_exec(db, DATABASE_CREATE_SRCINC_TABLE_SQL, 0, 1);
   return db;
 }
 
