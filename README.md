@@ -1,9 +1,9 @@
 for Japanese
 ============
 
-日本語のドキュメントを `doc.ja` ディレクトリ内に用意しました。
+日本語のドキュメントを [`doc.ja`](doc.ja) ディレクトリ内に用意しました。
 
-There are prepared the Japanese documents too in the `doc.ja` directory.
+There are prepared the Japanese documents too in the [`doc.ja`](doc.ja) directory.
 
 Cmdrecplay
 ==========
