@@ -131,24 +131,31 @@ is valid or invalid, just like at compile time.
   "Gray out the lines invalidated by #if #endif directives."
   (interactive)
   (when ifendif-mode
-    (let ((arg (format "%s" buffer-file-name))
+    (let* ((arg buffer-file-name)
           (nextline 1)
-          (doexec nil))
+          (doeval nil)
+          (cmd nil))
       (when buffer-file-name
+        (if (file-remote-p buffer-file-name)
+          (setq arg (tramp-file-name-localname
+                     (tramp-dissect-file-name buffer-file-name))))
+        (setq cmd (format "ifendif -e %s" arg))
         (save-excursion
           (set-buffer "*ifendif output*")
-        (erase-buffer)
-        (message (format "cmdplay-ifendif: `ifendif -e %s'" arg))
-        (call-process "ifendif" nil "*ifendif output*" nil "-e" arg)
-        (goto-line 2)
-        (setq nextline (- (point) 1))
-        (setq doeval (string= (buffer-substring 1 2) "("))
-        (if doeval
-            nil
-          (goto-char 1)
-          (search-forward " ")
-          (message (buffer-substring (point) nextline))
-          ))
+          (erase-buffer))
+        (message (format "cmdplay-ifendif: `%s'" cmd))
+        (shell-command cmd "*ifendif output*")
+        (save-excursion
+          (set-buffer "*ifendif output*")
+          (goto-line 2)
+          (setq nextline (- (point) 1))
+          (setq doeval (string= (buffer-substring 1 2) "("))
+          (if doeval
+              nil
+            (goto-char 1)
+            (search-forward " ")
+            (message (buffer-substring (point) nextline))
+            ))
         (if doeval (eval-buffer (get-buffer "*ifendif output*")))))))
 
 (defun cmdplay-ifendif-gray-out-invalidated-buffer (buffer)

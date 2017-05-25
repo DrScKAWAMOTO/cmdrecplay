@@ -25,15 +25,17 @@
 (defun cmdplay-clang-set-cflags-by-cmdplay ()
   "Set `ac-clang-cflags' of current buffer to new cflags for ac-clang by executing cmdplay."
   (interactive)
-  (let* ((arg2 (format "%s" buffer-file-name))
+  (let* ((arg2 buffer-file-name)
          (arg1 (cond ((eq major-mode 'c-mode) "clang-completion")
                      (t "clang++-completion")))
-         (cmd (format "cmdplay -f %s -- %s %s" arg2 arg1 arg2)))
+         (cmd nil))
     (when buffer-file-name
+      (if (file-remote-p buffer-file-name)
+          (setq arg2 (tramp-file-name-localname
+                      (tramp-dissect-file-name buffer-file-name))))
+      (setq cmd (format "cmdplay -f %s -- %s %s" arg2 arg1 arg2))
       (message (format "cmdplay-clang-async: `%s'" cmd))
-      (setq ac-clang-cflags
-            (split-string
-             (shell-command-to-string cmd)))
+      (setq ac-clang-cflags (split-string (shell-command-to-string cmd)))
       (ac-clang-update-cmdlineargs))))
 
 (defun cmdplay-clang-set-cflags-buffer (buffer)
