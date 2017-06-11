@@ -134,29 +134,20 @@ is valid or invalid, just like at compile time.
     (let* ((arg buffer-file-name)
           (nextline 1)
           (doeval nil)
-          (cmd nil))
+          (cmd nil)
+          (result ""))
       (when buffer-file-name
         (if (file-remote-p buffer-file-name)
           (setq arg (tramp-file-name-localname
                      (tramp-dissect-file-name buffer-file-name))))
         (setq cmd (format "ifendif -e %s" arg))
-        (save-excursion
-          (set-buffer "*ifendif output*")
-          (erase-buffer))
         (message (format "cmdplay-ifendif: `%s'" cmd))
-        (shell-command cmd "*ifendif output*")
-        (save-excursion
-          (set-buffer "*ifendif output*")
-          (goto-line 2)
-          (setq nextline (- (point) 1))
-          (setq doeval (string= (buffer-substring 1 2) "("))
-          (if doeval
-              nil
-            (goto-char 1)
-            (search-forward " ")
-            (message (buffer-substring (point) nextline))
-            ))
-        (if doeval (eval-buffer (get-buffer "*ifendif output*")))))))
+        (setq result (shell-command-to-string cmd))
+        (if (string-match "^(progn" result)
+            (eval (read result))
+          (string-match "^\\(.*\\)\n" result)
+          (message (match-string 1 result)))
+        ))))
 
 (defun cmdplay-ifendif-gray-out-invalidated-buffer (buffer)
   (save-excursion
@@ -170,7 +161,5 @@ is valid or invalid, just like at compile time.
   (mapcar 'cmdplay-ifendif-gray-out-invalidated-buffer (buffer-list)))
 
 (add-hook 'after-save-hook 'cmdplay-ifendif-gray-out-invalidated-all-buffers)
-
-(get-buffer-create "*ifendif output*")
 
 (provide 'cmdplay-ifendif)

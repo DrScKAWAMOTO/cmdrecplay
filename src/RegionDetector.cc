@@ -76,6 +76,11 @@ static bool last_visibility;
 static int last_from;
 static int last_to;
 
+void RegionDetector::p_if_endif_el_pre()
+{
+  printf("(progn\n");
+}
+
 void RegionDetector::p_if_endif_el(bool visibility, int to)
 {
   if (last_visibility == visibility)
@@ -83,9 +88,10 @@ void RegionDetector::p_if_endif_el(bool visibility, int to)
   else
     {
       if (last_visibility)
-        printf("(cmdplay-ifendif-show-lines %d %d)\n", last_from, last_to);
+        printf("  (cmdplay-ifendif-show-lines %d %d)\n", last_from, last_to);
       else
-        printf("(cmdplay-ifendif-gray-out-lines %d %d)\n", last_from + 1, last_to - 1);
+        printf("  (cmdplay-ifendif-gray-out-lines %d %d)\n",
+               last_from + 1, last_to - 1);
       last_from = last_to;
       last_to = to;
       last_visibility = visibility;
@@ -96,10 +102,12 @@ void RegionDetector::p_if_endif_el_show_to_end_of_file()
 {
   if (!last_visibility)
     {
-      printf("(cmdplay-ifendif-gray-out-lines %d %d)\n", last_from + 1, last_to - 1);
+      printf("  (cmdplay-ifendif-gray-out-lines %d %d)\n",
+             last_from + 1, last_to - 1);
       last_from = last_to;
     }
-  printf("(cmdplay-ifendif-show-lines-to-end-of-file %d)\n", last_from);
+  printf("  (cmdplay-ifendif-show-lines-to-end-of-file %d)\n", last_from);
+  printf(")\n");
 }
 
 RegionDetector::RegionDetector(const char* source, bool verbose, bool if_endif_el)
@@ -173,6 +181,7 @@ RegionDetector::RegionDetector(const char* source, bool verbose, bool if_endif_e
       last_visibility = true;
       last_from = 1;
       last_to = 1;
+      p_if_endif_el_pre();
       for (int i = 0; i < size; ++i)
         {
           bool visibility = p_visibility_of_region_magic_lines[i];
