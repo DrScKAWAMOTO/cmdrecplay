@@ -79,7 +79,17 @@ static int last_to;
 void RegionDetector::p_if_endif_el(bool visibility, int to)
 {
   if (last_visibility == visibility)
-    last_to = to;
+    {
+      if (last_visibility)
+        last_to = to;
+      else
+        {
+          printf("(cmdplay-ifendif-gray-out-lines %d %d)\n", last_from + 1, last_to - 1);
+          printf("(cmdplay-ifendif-show-lines %d %d)\n", last_to, last_to);
+          last_from = last_to;
+          last_to = to;
+        }
+    }
   else
     {
       if (last_visibility)

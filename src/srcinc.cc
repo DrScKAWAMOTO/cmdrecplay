@@ -21,7 +21,7 @@ static char* argv0;
 void usage()
 {
   printf("usage: %s [options] source\n", argv0);
-  printf("cmdplay を呼び出して source からインクルードされたファイルを一覧する\n");
+  printf("cmdplay を呼び出し source からインクルードされたファイルを一覧\n");
   printf("source:\n");
   printf("\tCソースファイル (拡張子 .c)\n");
   printf("\tC++ソースファイル (拡張子 .cc .c++ .cpp .cxx .C)\n");
