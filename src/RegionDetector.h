@@ -35,6 +35,7 @@ protected:
   // private tools
 protected:
   static IfDirectiveKind p_is_if_directive(const char* buffer);
+  void p_if_endif_el_pre();
   void p_if_endif_el(bool visibility, int to);
   void p_if_endif_el_show_to_end_of_file();
 
