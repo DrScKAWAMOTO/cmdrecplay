@@ -79,6 +79,13 @@
 (when cmdplay-use-clang-async (require 'cmdplay-clang-async))
 (when cmdplay-use-ifendif (require 'cmdplay-ifendif))
 
+(defun cmdplay-window-associated-buffer-list ()
+  (let* ((frlist (visible-frame-list))
+         (fr nil)
+         (result nil))
+    (dolist (fr frlist) (setq result (append result (window-list fr))))
+    result))
+
 (when (or cmdplay-use-clang-async cmdplay-use-ifendif)
   (defun cmdplay-c-common-hook ()
     (when cmdplay-use-clang-async (cmdplay-clang-set-cflags))
@@ -95,9 +102,23 @@
       (when (string= event "finished\n")
         (message "compile finished")
         (when cmdplay-use-clang-async
-          (mapcar 'cmdplay-clang-set-cflags-buffer (buffer-list)))
+          (let* ((bulist (buffer-list))
+                 (bu nil))
+            (dolist (bu bulist)
+              (save-excursion
+                (set-buffer bu)
+                (setq cmdplay-clang-invalidated t))))
+          (mapcar 'cmdplay-clang-set-cflags-buffer
+                  (cmdplay-window-associated-buffer-list)))
         (when cmdplay-use-ifendif
-          (mapcar 'cmdplay-ifendif-gray-out-invalidated-buffer (buffer-list)))
+          (let* ((bulist (buffer-list))
+                 (bu nil))
+            (dolist (bu bulist)
+              (save-excursion
+                (set-buffer bu)
+                (setq cmdplay-ifendif-invalidated t))))
+          (mapcar 'cmdplay-ifendif-gray-out-invalidated-buffer
+                  (cmdplay-window-associated-buffer-list)))
         ))
     (defun cmdplay-advice-around-compile (f &rest args)
       "Advice function for cmdplay-clang-async and/or cmdplay-ifendif."

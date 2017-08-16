@@ -22,6 +22,9 @@
 ;;;      define function of automatic setting ac-clang-cflags
 ;;;
 
+(defvar cmdplay-clang-invalidated nil)
+(make-variable-buffer-local 'cmdplay-clang-invalidated)
+
 (defun cmdplay-clang-set-cflags-by-cmdplay ()
   "Set `ac-clang-cflags' of current buffer to new cflags for ac-clang by executing cmdplay."
   (interactive)
@@ -44,13 +47,21 @@
   (save-excursion
     (set-buffer buffer)
     (if (or (eq major-mode 'c-mode) (eq major-mode 'c++-mode))
-        (cmdplay-clang-set-cflags-by-cmdplay))))
-
+        (when cmdplay-clang-invalidated
+          (setq cmdplay-clang-invalidated nil)
+          (cmdplay-clang-set-cflags-by-cmdplay)))))
 
 (defun cmdplay-clang-set-cflags-all-buffers ()
   "Set `ac-clang-cflags' of all buffers to new cflags for ac-clang by executing cmdplay."
   (interactive)
-  (mapcar 'cmdplay-clang-set-cflags-buffer (buffer-list)))
+  (let* ((bulist (buffer-list))
+         (bu nil))
+    (dolist (bu bulist)
+      (save-excursion
+        (set-buffer bu)
+        (setq cmdplay-clang-invalidated t))))
+  (mapcar 'cmdplay-clang-set-cflags-buffer
+          (cmdplay-window-associated-buffer-list)))
 
 (defun cmdplay-clang-set-cflags ()
   "Set `ac-clang-cflags' to new cflags for ac-clang by executing cmdplay."
