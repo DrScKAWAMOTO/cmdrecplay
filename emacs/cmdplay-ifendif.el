@@ -168,7 +168,8 @@ is valid or invalid, just like at compile time.
     (dolist (bu bulist)
       (save-excursion
         (set-buffer bu)
-        (setq cmdplay-ifendif-invalidated t))))
+        (if ifendif-mode
+            (setq cmdplay-ifendif-invalidated t)))))
   (mapcar 'cmdplay-ifendif-gray-out-invalidated-buffer
           (cmdplay-window-associated-buffer-list)))
 

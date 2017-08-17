@@ -82,8 +82,11 @@
 (defun cmdplay-window-associated-buffer-list ()
   (let* ((frlist (visible-frame-list))
          (fr nil)
+         (wi nil)
+         (wilist nil)
          (result nil))
-    (dolist (fr frlist) (setq result (append result (window-list fr))))
+    (dolist (fr frlist) (setq wilist (append wilist (window-list fr))))
+    (dolist (wi wilist) (setq result (append result (list (window-buffer wi)))))
     result))
 
 (when (or cmdplay-use-clang-async cmdplay-use-ifendif)
