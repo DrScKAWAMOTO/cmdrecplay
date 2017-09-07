@@ -36,7 +36,8 @@ Included::Included(const char* source)
             source, output_filename, source);
   AtExitUnlink aeu(output_filename);
   aeu.enter();
-  system(command_buffer);
+  int result = system(command_buffer);
+  assert(result == 0);
   p_included = fopen(output_filename, "r");
   if (!p_included)
     {

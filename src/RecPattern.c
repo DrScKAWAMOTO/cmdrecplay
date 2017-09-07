@@ -211,7 +211,8 @@ static void purge_cmdskin_path(const char* home_env)
         char command_buffer[LENGTH_OF_BUFFER];
         sprintf(command_buffer, "rm -rf %s/.cmdskin.%d",
                 home_env, list_of_pids[i]);
-        system(command_buffer);
+        int result = system(command_buffer);
+        assert(result == 0);
       }
   if (list_of_pids)
     {
@@ -242,7 +243,8 @@ static void make_cmdskin_link(const RecPattern_s* me, const char* path_env,
   else
     {
       sprintf(command_buffer, "mkdir -p %s", cmdskin_dir);
-      system(command_buffer);
+      int result = system(command_buffer);
+      assert(result == 0);
       const char* path_ptr = path_env;
       while (*path_ptr != '\0')
         {
@@ -292,7 +294,8 @@ static void make_cmdskin_link(const RecPattern_s* me, const char* path_env,
                         continue;
                       sprintf(command_buffer, "ln -s %s/cmdskin %s/%s",
                               INSTALL_FULL_SBINDIR, cmdskin_dir, dire.d_name);
-                      system(command_buffer);
+                      int result = system(command_buffer);
+                      assert(result == 0);
                     }
                 }
             }
@@ -349,7 +352,8 @@ void rec_pattern_rm_cmdskin_path()
   pid_t me_pid = getpid();
   char command_buffer[LENGTH_OF_BUFFER];
   sprintf(command_buffer, "rm -rf %s/.cmdskin.%d", home_env, me_pid);
-  system(command_buffer);
+  int result = system(command_buffer);
+  assert(result == 0);
 }
 
 /* Local Variables:     */

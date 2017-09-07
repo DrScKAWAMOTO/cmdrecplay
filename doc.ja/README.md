@@ -1,7 +1,7 @@
 cmdrecplay
 ==========
 
-`cmdrecplay` は、 `emacs` の `flycheck`, `auto-complete` に対応したツールです。
+`cmdrecplay` は、 `emacs` の `flycheck`, `auto-complete`, `company` に対応したツールです。
 このツールには `cmdrec`, `cmdplay` コマンドが含まれています。
 
 `cmdrec` ツールはプロジェクトの makefile から以下のコンパイル時オプションを `sqlite3` データベースに記憶します。
@@ -28,7 +28,7 @@ cmdrecplay
 `sqlite3` データベースである `~/.cmdrec.db` にはコンパイルの履歴が記録されています。
 従ってこのファイルを貴方が手動で削除してしまうと、これまでのコンパイル履歴がなくなります。
 
-`cmdplay` の実行結果に基づいて `emacs` の `flycheck` や `auto-complete` と連携するための emacs lisp ファイルを添付しています。`cmdplay-flycheck.el` と `cmdplay-clang-async.el` です。
+`cmdplay` の実行結果に基づいて `emacs` の `flycheck`, `auto-complete`, `company` と連携するための emacs lisp ファイルを添付しています。`cmdplay-flycheck.el`, `cmdplay-clang-async.el`, `company-cmdplay.el` です。
 
 ifendif
 =======
@@ -59,6 +59,7 @@ Laszlo Nagy さん作の `bear protocol` に感謝します。古い `cmdrecplay
 5. コンフィギュレーションファイルを解析するために libconfig もしくは libconfig-dev (バージョンは 1.4 以上が必要です)
 6. 実行ファイルをリンクするために sqlite3 もしくは libsqlite3-dev
 7. 実行ファイルをリンクするために oniguruma, libonig2, もしくは libonig-dev
+8. flycheck,company,auto-complete を使うために clang のバージョン 3.0 以上
 
 ### ビルド方法
 
@@ -96,6 +97,24 @@ Laszlo Nagy さん作の `bear protocol` に感謝します。古い `cmdrecplay
     (setq cmdplay-compile-command "LANG=C cmdrec -- make -k ")
     (require 'cmdplay)
 
+`auto-complete` ではなくて `company` を使う場合は、
+
+    (setq cmdplay-use-flycheck t)
+    (setq cmdplay-use-company)
+    (setq cmdplay-use-ifendif t)
+    (require 'cmdplay)
+
+の4行もしくは
+
+    (setq cmdplay-use-flycheck t)
+    (setq cmdplay-use-company)
+    (setq cmdplay-use-ifendif t)
+    (setq cmdplay-use-compile t)
+    (setq cmdplay-compile-command "LANG=C cmdrec -- make -k ")
+    (require 'cmdplay)
+
+の6行です。
+
 後は、プロジェクトごとに以下を実行します。
 
     cd <makefile を含んだプロジェクトディレクトリ>
@@ -116,6 +135,6 @@ cmake プロジェクトの場合は、以下のようにします。
 
 他のオプションについては `cmdrec` や `cmdplay` に `-h` オプションを付けて起動してみてください。
 
-この後は、特に `cmdrec` を起動しなくても、emacs でプロジェクトの C/C++ ソースコードを編集するのに応じて `flycheck`, `auto completion`, `ifendif` に反映されます。
+この後は、特に `cmdrec` を起動しなくても、emacs でプロジェクトの C/C++ ソースコードを編集するのに応じて `flycheck`, `auto completion`, `company`, `ifendif` に反映されます。
 makefile に書かれたインクルードパスやマクロを修正した場合に限ってはこれは反映されないため、`M-x compile` を使って `cmdrec -- make` を起動し直してください。
 

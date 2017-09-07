@@ -17,7 +17,6 @@ FillTheSkips::FillTheSkips(LineBuffer* parent)
 
 FillTheSkips::~FillTheSkips()
 {
-  delete p_parent;
 }
 
 bool FillTheSkips::read_line()

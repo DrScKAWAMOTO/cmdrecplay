@@ -5,11 +5,6 @@
  * Create: 2014/05/04 13:43:35 JST
  */
 
-#include "config.h"
-#include "debug.h"
-#include "PlayPatterns.h"
-#include "PlayDatabase.h"
-
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,6 +14,12 @@
 #include <signal.h>
 #include <unistd.h>
 #include <sys/param.h>
+#include <assert.h>
+
+#include "config.h"
+#include "debug.h"
+#include "PlayPatterns.h"
+#include "PlayDatabase.h"
 
 typedef struct cmdplay_commands_t
 {
@@ -88,6 +89,12 @@ int main(int argc, char* argv[])
     fprintf(stderr, "  argv[%d] = `%s'\n", offset, argvs.argv[offset]);
 #endif
 #endif
+  if (commands.verbose)
+    {
+      fprintf(stderr, "execvp()\n");
+      for (int offset = 0; argvs.argv[offset]; offset++)
+        fprintf(stderr, "  argv[%d] = `%s'\n", offset, argvs.argv[offset]);
+    }
   if (execvp(argvs.argv[0], argvs.argv) < 0)
     {
       if (errno == ENOENT)
@@ -201,7 +208,8 @@ static void argv_to_parameter_set(char** argv, const char* optfile,
 {
   Argv_s argvs;
   char buffer[MAXPATHLEN + 1];
-  getcwd(buffer, MAXPATHLEN);
+  char* tmp_ptr = getcwd(buffer, MAXPATHLEN);
+  assert(tmp_ptr == buffer);
   parameterSet_set_by_copy_as_realpath(parameter_set, PARAMETER_TYPE_PLAYCWD, buffer);
   parameterSet_set_by_copy_string(parameter_set, PARAMETER_TYPE_PLAYCMD, argv[0]);
   if (optfile && optfile[0])

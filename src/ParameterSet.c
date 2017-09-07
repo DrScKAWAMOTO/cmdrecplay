@@ -83,12 +83,14 @@ void parameterSet_set_by_copy_string(ParameterSet_s* me, ParameterType_e paramet
   parameterSet_set_string_value(me, parameter, ptr);
 }
 
-void parameterSet_set_by_copy_as_realpath(ParameterSet_s* me, ParameterType_e parameter,
+void parameterSet_set_by_copy_as_realpath(ParameterSet_s* me,
+                                          ParameterType_e parameter,
                                           const char* value_as_string)
 {
   ParameterType_e cwd_parameter;
   const char* cwd_path;
   char* resolved_path;
+  char* tmp_path;
   char* work_path;
   switch (parameter)
     {
@@ -100,7 +102,7 @@ void parameterSet_set_by_copy_as_realpath(ParameterSet_s* me, ParameterType_e pa
       cwd_parameter = PARAMETER_TYPE_PLAYCWD;
     add_cwd_to_path:
       cwd_path = parameterSet_refer_string_value(me, cwd_parameter);
-      if (value_as_string[0] == '/')
+      if ((value_as_string[0] == '/') || (value_as_string[0] == '-'))
         {
           work_path = malloc(strlen(value_as_string) + 1);
           sprintf(work_path, "%s", value_as_string);
@@ -116,7 +118,13 @@ void parameterSet_set_by_copy_as_realpath(ParameterSet_s* me, ParameterType_e pa
       if (work_path[strlen(work_path) - 1] == '\n')
         work_path[strlen(work_path) - 1] = '\0';
       resolved_path = malloc(PATH_MAX + 1);
-      realpath(work_path, resolved_path);
+      if (work_path[0] == '-')
+        strcpy(resolved_path, work_path);
+      else
+        {
+          tmp_path = realpath(work_path, resolved_path);
+          assert(resolved_path == tmp_path);
+        }
       free(work_path);
       parameterSet_set_string_value(me, parameter, resolved_path);
       return;
@@ -125,7 +133,8 @@ void parameterSet_set_by_copy_as_realpath(ParameterSet_s* me, ParameterType_e pa
     case PARAMETER_TYPE_EXECCWD:
       assert(value_as_string[0] == '/');
       resolved_path = malloc(PATH_MAX + 1);
-      realpath(value_as_string, resolved_path);
+      tmp_path = realpath(value_as_string, resolved_path);
+      assert(resolved_path == tmp_path);
       parameterSet_set_string_value(me, parameter, resolved_path);
       return;
     case PARAMETER_TYPE_RECCMD:
@@ -343,7 +352,7 @@ void parameterSet_print(ParameterSet_s* me)
 {
   if (me->error_detected)
     {
-      fprintf(stderr, "error detected\n");
+      fprintf(stderr, "    error detected\n");
       return;
     }
   if (me->reccmd)

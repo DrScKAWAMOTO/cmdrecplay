@@ -63,6 +63,7 @@ Linux and OS X only.
 5. **libconfig/libconfig-dev** to parse the config file. (Version shall be greater than 1.4)
 6. **sqlite3/libsqlite3-dev** to link the executables.
 7. **oniguruma4/libonig2/libonig-dev** to link the executables.
+8. **clang version 3.0 or higher to use flycheck,company,auto-complete
 
 ### Build commands
 
@@ -97,6 +98,22 @@ To associate with the `M-x compile` command, write follows instead.
 
     (setq cmdplay-use-flycheck t)
     (setq cmdplay-use-clang-async t)
+    (setq cmdplay-use-ifendif t)
+    (setq cmdplay-use-compile t)
+    (setq cmdplay-compile-command "LANG=C cmdrec -- make -k ")
+    (require 'cmdplay)
+
+If you use `company` rather than `auto-complete`, then write following 4 lines.
+
+    (setq cmdplay-use-flycheck t)
+    (setq cmdplay-use-company t)
+    (setq cmdplay-use-ifendif t)
+    (require 'cmdplay)
+
+And to associate with the `M-x compile` command, write follows instead.
+
+    (setq cmdplay-use-flycheck t)
+    (setq cmdplay-use-company t)
     (setq cmdplay-use-ifendif t)
     (setq cmdplay-use-compile t)
     (setq cmdplay-compile-command "LANG=C cmdrec -- make -k ")

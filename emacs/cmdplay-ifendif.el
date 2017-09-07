@@ -144,7 +144,7 @@ is valid or invalid, just like at compile time.
           (setq arg (tramp-file-name-localname
                      (tramp-dissect-file-name buffer-file-name))))
         (setq cmd (format "ifendif -e %s" arg))
-        (message (format "cmdplay-ifendif: `%s'" cmd))
+        (message "cmdplay-ifendif: `%s'" cmd)
         (setq result (shell-command-to-string cmd))
         (if (string-match "^(progn" result)
             (eval (read result))

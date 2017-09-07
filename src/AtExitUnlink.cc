@@ -45,9 +45,9 @@ AtExitUnlink::AtExitUnlink(const AtExitUnlink& you)
 AtExitUnlink& AtExitUnlink::operator=(const AtExitUnlink& you)
 {
   if (&you != this)
-  {
-    strcpy(p_filename, you.p_filename);
-  }
+    {
+      strcpy(p_filename, you.p_filename);
+    }
   return *this;
 }
 

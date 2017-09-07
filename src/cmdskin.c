@@ -5,11 +5,6 @@
  * Create: 2014/05/04 13:43:35 JST
  */
 
-#include "config.h"
-#include "debug.h"
-#include "RecPattern.h"
-#include "RecDatabase.h"
-
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -18,7 +13,12 @@
 #include <limits.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <assert.h>
 
+#include "config.h"
+#include "debug.h"
+#include "RecPattern.h"
+#include "RecDatabase.h"
 
 static void print_version();
 static RecPattern_s* cmdrec_init(const char* config_file);
@@ -120,7 +120,10 @@ int main(int argc, char * argv[])
 #endif
 #endif
   if (command_buffer[0])
-    system(command_buffer);
+    {
+      int result = system(command_buffer);
+      assert(result == 0);
+    }
   if (execvp(file, argv) < 0)
     {
       perror("cmdskin: execvp");

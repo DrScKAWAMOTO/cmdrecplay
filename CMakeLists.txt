@@ -15,7 +15,7 @@ set(CPACK_RPM_PACKAGE_RELEASE "1%{?dist}")
 set(CPACK_RPM_PACKAGE_LICENSE "GPLv3")
 set(CPACK_RPM_PACKAGE_GROUP "Development/Tools")
 set(CPACK_RPM_PACKAGE_URL "http://kawamoto.mydns.jp/")
-set(CPACK_RPM_PACKAGE_DESCRIPTION "Cmdrecplay is a tool for C/C++ checker of emacs flycheck, for auto-complete-clang-async, for reporting valid lines by `#if #endif directives`, with C/C++ language source codes.")
+set(CPACK_RPM_PACKAGE_DESCRIPTION "Cmdrecplay is a tool for C/C++ checker of emacs flycheck, for auto-complete-clang-async, for company, for reporting valid lines by `#if #endif directives`, with C/C++ language source codes.")
 include(CPack)
 
 find_package(PkgConfig)

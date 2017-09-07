@@ -39,7 +39,8 @@ Expanded::Expanded(const char* detector, const char* source)
             source, expanded_filename, detector);
   AtExitUnlink aeu(expanded_filename);
   aeu.enter();
-  system(command_buffer);
+  int result = system(command_buffer);
+  assert(result == 0);
   p_expanded = fopen(expanded_filename, "r");
   if (!p_expanded)
     {

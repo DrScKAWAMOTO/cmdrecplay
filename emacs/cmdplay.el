@@ -17,7 +17,7 @@
 ;;; 02139, USA.
 ;;;
 
-;;; After installation, append the following lines in your emacs startup file:
+;;; After installation, append the following 4 lines in your emacs startup file:
 ;;;
 ;;;     (setq cmdplay-use-flycheck t)
 ;;;     (setq cmdplay-use-clang-async t)
@@ -28,6 +28,22 @@
 ;;;
 ;;;     (setq cmdplay-use-flycheck t)
 ;;;     (setq cmdplay-use-clang-async t)
+;;;     (setq cmdplay-use-ifendif t)
+;;;     (setq cmdplay-use-compile t)
+;;;     (setq cmdplay-compile-command "LANG=C cmdrec -- make -k ")
+;;;     (require 'cmdplay)
+;;;
+;;; If you use `company` rather than `auto-complete`, then write following 4 lines.
+;;;
+;;;     (setq cmdplay-use-flycheck t)
+;;;     (setq cmdplay-use-company t)
+;;;     (setq cmdplay-use-ifendif t)
+;;;     (require 'cmdplay)
+;;;
+;;; And to associate with the `M-x compile` command, write follows instead.
+;;;
+;;;     (setq cmdplay-use-flycheck t)
+;;;     (setq cmdplay-use-company t)
 ;;;     (setq cmdplay-use-ifendif t)
 ;;;     (setq cmdplay-use-compile t)
 ;;;     (setq cmdplay-compile-command "LANG=C cmdrec -- make -k ")
@@ -68,6 +84,8 @@
 (defvar cmdplay-use-flycheck nil)
 ;;; Setq t if you use auto-complete-clang-async.
 (defvar cmdplay-use-clang-async nil)
+;;; Setq t if you use company.
+(defvar cmdplay-use-company nil)
 ;;; Setq t if you use ifendif (gray out C/C++ source lines invalidated by `if direc...).
 (defvar cmdplay-use-ifendif nil)
 ;;; Setq t to associate with the `compile' command.
@@ -77,6 +95,12 @@
 
 (when cmdplay-use-flycheck (require 'cmdplay-flycheck))
 (when cmdplay-use-clang-async (require 'cmdplay-clang-async))
+(when cmdplay-use-company
+  (message "cmdplay-use-company begin")
+  (require 'company-cmdplay)
+  (add-to-list 'company-backends #'company-cmdplay) ; backend追加
+  (message "cmdplay-use-company end")
+  )
 (when cmdplay-use-ifendif (require 'cmdplay-ifendif))
 
 (defun cmdplay-window-associated-buffer-list ()
