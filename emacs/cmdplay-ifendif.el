@@ -26,6 +26,9 @@
   "gray out invalidated code by #if #endif directives."
   :group 'c)
 
+(defvar cmdplay-ifendif-invalidated nil)
+(make-variable-buffer-local 'cmdplay-ifendif-invalidated)
+
 (defface cmdplay-ifendif-shadow '((t (:inherit shadow)))
   "Face for shadowing regions invalidated by #if #endif directives."
   :group 'cmdplay-ifendif
@@ -153,12 +156,22 @@ is valid or invalid, just like at compile time.
   (save-excursion
     (set-buffer buffer)
     (if ifendif-mode
-        (cmdplay-ifendif-gray-out-invalidated))))
+        (when cmdplay-ifendif-invalidated
+          (setq cmdplay-ifendif-invalidated nil)
+          (cmdplay-ifendif-gray-out-invalidated)))))
 
 (defun cmdplay-ifendif-gray-out-invalidated-all-buffers ()
   "Gray out the lines invalidated by #if #endif directives for all buffers."
   (interactive)
-  (mapcar 'cmdplay-ifendif-gray-out-invalidated-buffer (buffer-list)))
+  (let* ((bulist (buffer-list))
+         (bu nil))
+    (dolist (bu bulist)
+      (save-excursion
+        (set-buffer bu)
+        (if ifendif-mode
+            (setq cmdplay-ifendif-invalidated t)))))
+  (mapcar 'cmdplay-ifendif-gray-out-invalidated-buffer
+          (cmdplay-window-associated-buffer-list)))
 
 (add-hook 'after-save-hook 'cmdplay-ifendif-gray-out-invalidated-all-buffers)
 
