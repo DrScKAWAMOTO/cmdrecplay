@@ -20,6 +20,8 @@ include(CPack)
 
 find_package(PkgConfig)
 pkg_check_modules(LIBCONFIG REQUIRED libconfig>=1.4)
+pkg_check_modules(ONIGURUMA REQUIRED oniguruma>=6.9.7)
+pkg_check_modules(SQLITE3 REQUIRED sqlite3>=3.32.3)
 
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 find_package(C99 REQUIRED)

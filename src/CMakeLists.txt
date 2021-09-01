@@ -6,7 +6,7 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 add_definitions(-D_GNU_SOURCE)
 
 
-link_directories(${LIBCONFIG_LIBRARY_DIRS})
+link_directories(${SQLITE3_LIBRARY_DIRS} ${ONIGURUMA_LIBRARY_DIRS})
 add_executable(cmdrec
     ConfigFile.c
     Pattern.c
@@ -55,13 +55,12 @@ add_executable(srcinc
     Database.c
     SrcDatabase.c
     srcinc.cc)
-include_directories(${LIBCONFIG_INCLUDE_DIRS} ../src)
-include_directories(${LIBCONFIG_INCLUDE_DIRS})
-target_link_libraries(cmdrec ${LIBCONFIG_LIBRARIES} onig sqlite3)
-target_link_libraries(cmdplay ${LIBCONFIG_LIBRARIES} onig sqlite3)
-target_link_libraries(cmdsrc ${LIBCONFIG_LIBRARIES} sqlite3)
-target_link_libraries(cmdskin ${LIBCONFIG_LIBRARIES} onig sqlite3)
-target_link_libraries(srcinc ${LIBCONFIG_LIBRARIES} sqlite3)
+include_directories(${SQLITE3_INCLUDE_DIRS} ${ONIGURUMA_INCLUDE_DIRS} ../src)
+target_link_libraries(cmdrec ${SQLITE3_LIBRARIES} ${ONIGURUMA_LIBRARIES})
+target_link_libraries(cmdplay ${SQLITE3_LIBRARIES} ${ONIGURUMA_LIBRARIES})
+target_link_libraries(cmdsrc ${SQLITE3_LIBRARIES})
+target_link_libraries(cmdskin ${SQLITE3_LIBRARIES} ${ONIGURUMA_LIBRARIES})
+target_link_libraries(srcinc ${SQLITE3_LIBRARIES})
 set_target_properties(cmdrec PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 set_target_properties(cmdplay PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 set_target_properties(cmdsrc PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
