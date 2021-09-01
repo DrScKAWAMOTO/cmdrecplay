@@ -10,7 +10,7 @@ Cmdrecplay
 
 `Cmdrecplay` is a tool for a C/C++ checker of emacs flycheck, emacs auto-complete,
 and emacs company.
-`Cmdrecplay' does also have ifendif grayouting function.
+`Cmdrecplay` does also have ifendif grayouting function.
 This tool consist of `cmdrec` and `cmdplay`.
 `cmdrec` examines makefile of your projects, then records compiler options for make
 process, such as -D, -I, -W, -f, -std, etc., to a sqlite3 database `~/.cmdrec.db`.
