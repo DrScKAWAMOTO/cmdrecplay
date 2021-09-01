@@ -1,7 +1,8 @@
 cmdrecplay
 ==========
 
-`cmdrecplay` は、 `emacs` の `flycheck`, `auto-complete`, `company` に対応したツールです。
+`cmdrecplay` は、`emacs` の `flycheck`, `auto-complete`, `company` に対応したツールです。
+また、ifendif グレイアウト機能も持ち合わせています。
 このツールには `cmdrec`, `cmdplay` コマンドが含まれています。
 
 `cmdrec` ツールはプロジェクトの makefile から以下のコンパイル時オプションを `sqlite3` データベースに記憶します。
