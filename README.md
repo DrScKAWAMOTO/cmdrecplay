@@ -8,7 +8,8 @@ There are prepared the Japanese documents too in the [`doc.ja`](doc.ja) director
 Cmdrecplay
 ==========
 
-`Cmdrecplay` is a tool for a C/C++ checker of emacs flycheck, and emacs auto-complete.
+`Cmdrecplay` is a tool for a C/C++ checker of emacs flycheck, emacs auto-complete,
+and emacs company.
 This tool consist of `cmdrec` and `cmdplay`.
 `cmdrec` examines makefile of your projects, then records compiler options for make
 process, such as -D, -I, -W, -f, -std, etc., to a sqlite3 database `~/.cmdrec.db`.
